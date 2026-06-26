@@ -26,6 +26,7 @@ Route::middleware(['auth.api', 'throttle:120,1'])->group(function () {
     Route::post('/attendance/check-in', [AttendanceApiController::class, 'checkIn']);
     Route::post('/attendance/check-out', [AttendanceApiController::class, 'checkOut']);
     Route::get('/attendance/history', [AttendanceApiController::class, 'history']);
+    Route::get('/attendance/export', [AttendanceApiController::class, 'export']);
 
     // New Employee Feature Routes
     Route::get('/announcements', [EmployeeApiController::class, 'announcements']);
