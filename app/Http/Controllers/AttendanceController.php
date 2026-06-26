@@ -26,7 +26,7 @@ class AttendanceController extends Controller
     private function getActiveAttendance($user)
     {
         return Attendance::where('user_id', $user->id)
-            ->whereIn('date', [Carbon::today(), Carbon::yesterday()])
+            ->whereIn('date', [Carbon::today('Asia/Jakarta'), Carbon::yesterday('Asia/Jakarta')])
             ->whereNull('check_out_time')
             ->first();
     }
@@ -44,7 +44,7 @@ class AttendanceController extends Controller
 
         // Find completed shifts today
         $completedShiftIds = Attendance::where('user_id', $user->id)
-            ->whereDate('date', Carbon::today())
+            ->whereDate('date', Carbon::today('Asia/Jakarta'))
             ->whereNotNull('check_out_time')
             ->pluck('shift_id')
             ->toArray();
@@ -92,15 +92,15 @@ class AttendanceController extends Controller
         $shift = \App\Models\Shift::findOrFail($request->shift_id);
 
         // Resolve active shift session
-        $sessionTodayStart = Carbon::today()->setTimeFromTimeString($shift->start_time);
-        $sessionTodayEnd = Carbon::today()->setTimeFromTimeString($shift->end_time);
+        $sessionTodayStart = Carbon::today('Asia/Jakarta')->setTimeFromTimeString($shift->start_time);
+        $sessionTodayEnd = Carbon::today('Asia/Jakarta')->setTimeFromTimeString($shift->end_time);
         if ($shift->is_overnight) {
             $sessionTodayEnd->addDay();
         }
         $sessionTodayEarliest = $sessionTodayStart->copy()->subMinutes(60);
 
-        $sessionYesterdayStart = Carbon::yesterday()->setTimeFromTimeString($shift->start_time);
-        $sessionYesterdayEnd = Carbon::yesterday()->setTimeFromTimeString($shift->end_time);
+        $sessionYesterdayStart = Carbon::yesterday('Asia/Jakarta')->setTimeFromTimeString($shift->start_time);
+        $sessionYesterdayEnd = Carbon::yesterday('Asia/Jakarta')->setTimeFromTimeString($shift->end_time);
         if ($shift->is_overnight) {
             $sessionYesterdayEnd->addDay();
         }
