@@ -471,6 +471,12 @@ class AttendanceApiController extends Controller
                     'late_minutes' => $att->late_minutes,
                     'early_out_minutes' => $att->early_out_minutes,
                     'duration' => $att->work_duration ?? '-',
+                    'check_in_photo_url' => $att->check_in_photo ? asset('storage/' . $att->check_in_photo) : null,
+                    'check_out_photo_url' => $att->check_out_photo ? asset('storage/' . $att->check_out_photo) : null,
+                    'check_in_address' => $att->check_in_address,
+                    'check_out_address' => $att->check_out_address,
+                    'check_in_distance' => $att->check_in_distance,
+                    'check_out_distance' => $att->check_out_distance,
                 ];
             });
 
