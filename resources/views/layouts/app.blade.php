@@ -949,7 +949,7 @@
     @if(auth()->check() && auth()->user()->birth_date && auth()->user()->birth_date->format('m-d') === now()->format('m-d'))
         <!-- Birthday Celebration overlay + script -->
         <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-        <div id="birthday-celebration-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm transition-opacity duration-300">
+        <div id="birthday-celebration-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm transition-opacity duration-300" style="display: none;">
             <div class="card max-w-sm w-full p-6 text-center shadow-2xl scale-95 transform transition-transform duration-300 relative overflow-hidden" style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 2px solid #ec4899;">
                 <div class="relative z-10 space-y-4">
                     <div class="w-16 h-16 bg-pink-500/10 border-2 border-pink-500/30 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-pink-500/20">
@@ -973,6 +973,25 @@
 
         <script>
             window.addEventListener('DOMContentLoaded', (event) => {
+                const today = new Date().toISOString().slice(0, 10);
+                const storageKey = 'birthday_shown_{{ auth()->id() }}_' + today;
+                const hasShown = localStorage.getItem(storageKey);
+                const modal = document.getElementById('birthday-celebration-modal');
+
+                if (hasShown) {
+                    if (modal) {
+                        modal.remove();
+                    }
+                    return;
+                }
+
+                // Show modal & record to localStorage
+                if (modal) {
+                    modal.style.display = 'flex';
+                }
+                localStorage.setItem(storageKey, 'true');
+
+                // Shoot confetti!
                 const end = Date.now() + (3 * 1000); // 3 seconds
                 const colors = ['#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
 
