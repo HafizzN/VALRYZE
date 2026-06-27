@@ -605,4 +605,38 @@ class AttendanceApiController extends Controller
             'message' => 'Semua notifikasi berhasil ditandai dibaca.'
         ]);
     }
+
+    /**
+     * Update user profile photo.
+     */
+    public function updateProfilePhoto(Request $request)
+    {
+        $user = Auth::user();
+        
+        $request->validate([
+            'photo' => 'required|image|max:2048', // max 2MB
+        ]);
+
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($user->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->photo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
+            }
+
+            // Save new photo
+            $path = $request->file('photo')->store('profile-photos', 'public');
+            $user->update(['photo' => $path]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Foto profil berhasil diperbarui.',
+                'photo_url' => asset('storage/' . $path)
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'File foto tidak ditemukan.'
+        ], 400);
+    }
 }
