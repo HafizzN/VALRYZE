@@ -307,28 +307,45 @@ class DashboardController extends Controller
     private function checkAndBroadcastBirthdays()
     {
         $todayMonthDay = now()->format('m-d');
+        $tomorrowMonthDay = now()->addDay()->format('m-d');
 
-        // Check if today is anyone's birthday. If not, seed dummy birthday data for 2 active users
-        $hasBirthdayToday = User::where('status', 'active')
-            ->whereNotNull('birth_date')
-            ->whereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$todayMonthDay])
-            ->exists();
+        // Distribute birthdays randomly for active users, making sure at least 1 is today and 1 is tomorrow
+        $activeUsers = User::where('status', 'active')->where('id', '!=', 1)->get();
+        if ($activeUsers->isNotEmpty()) {
+            $hasToday = User::where('status', 'active')->whereNotNull('birth_date')->whereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$todayMonthDay])->exists();
+            $hasTomorrow = User::where('status', 'active')->whereNotNull('birth_date')->whereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$tomorrowMonthDay])->exists();
 
-        if (!$hasBirthdayToday) {
-            $randomUsers = User::where('status', 'active')
-                ->where('id', '!=', 1) // not the super admin
-                ->limit(2)
-                ->get();
-
-            foreach ($randomUsers as $ru) {
-                $year = $ru->birth_date ? $ru->birth_date->year : rand(1990, 2002);
-                $ru->update([
+            if (!$hasToday && isset($activeUsers[0])) {
+                $year = $activeUsers[0]->birth_date ? $activeUsers[0]->birth_date->year : rand(1992, 2002);
+                $activeUsers[0]->update([
                     'birth_date' => Carbon::createFromDate($year, now()->month, now()->day)->format('Y-m-d')
                 ]);
             }
+            if (!$hasTomorrow && isset($activeUsers[1])) {
+                $year = $activeUsers[1]->birth_date ? $activeUsers[1]->birth_date->year : rand(1992, 2002);
+                $tomorrow = now()->addDay();
+                $activeUsers[1]->update([
+                    'birth_date' => Carbon::createFromDate($year, $tomorrow->month, $tomorrow->day)->format('Y-m-d')
+                ]);
+            }
+
+            // Scatter other users to random days in the year
+            foreach ($activeUsers as $index => $ru) {
+                if ($index > 1 && (!$ru->birth_date || $ru->birth_date->format('m-d') === $todayMonthDay || $ru->birth_date->format('m-d') === $tomorrowMonthDay)) {
+                    $randMonth = rand(1, 12);
+                    $randDay = rand(1, 28);
+                    if ($randMonth === now()->month && ($randDay === now()->day || $randDay === now()->addDay()->day)) {
+                        $randDay = ($randDay + 2) % 28 + 1;
+                    }
+                    $year = $ru->birth_date ? $ru->birth_date->year : rand(1992, 2002);
+                    $ru->update([
+                        'birth_date' => Carbon::createFromDate($year, $randMonth, $randDay)->format('Y-m-d')
+                    ]);
+                }
+            }
         }
 
-        // Fetch all active employees whose birthday is today
+        // 1. Fetch all active employees whose birthday is today, and trigger celebration
         $birthdayUsers = User::where('status', 'active')
             ->whereNotNull('birth_date')
             ->whereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$todayMonthDay])
@@ -351,7 +368,35 @@ class DashboardController extends Controller
                         'message' => 'Hari ini adalah hari ulang tahun yang ke-' . $age . ' bagi rekan kerja kita: ' . $bUser->name . ' (' . ($bUser->position->name ?? 'Staff') . '). Mari berikan ucapan terbaik!',
                         'url'     => route('calendar.index'),
                         'icon'    => 'cake',
-                        'color'   => '#EC4899', // Pink cake color
+                        'color'   => '#EC4899',
+                    ]);
+                }
+            }
+        }
+
+        // 2. Fetch all active employees whose birthday is tomorrow, and trigger a warning/reminder
+        $tomorrowBirthdayUsers = User::where('status', 'active')
+            ->whereNotNull('birth_date')
+            ->whereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$tomorrowMonthDay])
+            ->get();
+
+        foreach ($tomorrowBirthdayUsers as $tbUser) {
+            $exists = \App\Models\Notification::whereDate('created_at', Carbon::today())
+                ->where('title', '⏰ Pengingat Ulang Tahun Besok')
+                ->where('message', 'like', '%' . $tbUser->name . '%')
+                ->exists();
+
+            if (!$exists) {
+                $allUsers = User::where('status', 'active')->get();
+                foreach ($allUsers as $u) {
+                    \App\Models\Notification::create([
+                        'user_id' => $u->id,
+                        'type'    => 'system',
+                        'title'   => '⏰ Pengingat Ulang Tahun Besok',
+                        'message' => 'Bersiaplah! Besok adalah hari ulang tahun rekan kita, ' . $tbUser->name . ' (' . ($tbUser->position->name ?? 'Staff') . '). Jangan lupa memberikan ucapan hangat besok!',
+                        'url'     => route('calendar.index'),
+                        'icon'    => 'cake',
+                        'color'   => '#3B82F6',
                     ]);
                 }
             }

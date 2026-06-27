@@ -946,6 +946,75 @@
         }
     </script>
 
+    @if(auth()->check() && auth()->user()->birth_date && auth()->user()->birth_date->format('m-d') === now()->format('m-d'))
+        <!-- Birthday Celebration overlay + script -->
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+        <div id="birthday-celebration-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm transition-opacity duration-300">
+            <div class="card max-w-sm w-full p-6 text-center shadow-2xl scale-95 transform transition-transform duration-300 relative overflow-hidden" style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 2px solid #ec4899;">
+                <div class="relative z-10 space-y-4">
+                    <div class="w-16 h-16 bg-pink-500/10 border-2 border-pink-500/30 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-pink-500/20">
+                        <span class="text-3xl animate-bounce">🎂</span>
+                    </div>
+                    
+                    <h2 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-indigo-400">Selamat Ulang Tahun! 🎉</h2>
+                    <p class="text-slate-200 text-sm font-semibold">{{ auth()->user()->name }}</p>
+                    <p class="text-slate-400 text-xs leading-relaxed">
+                        Manajemen & segenap rekan kerja di PT. Smart Teknologi Indonesia mengucapkan Selamat Hari Ulang Tahun! Semoga panjang umur, sehat selalu, dan dilancarkan segala urusannya. 🌟
+                    </p>
+                    
+                    <div class="pt-2">
+                        <button onclick="closeBirthdayCelebration()" class="btn btn-primary w-full justify-center" style="background: linear-gradient(135deg, #ec4899, #be185d); box-shadow: 0 4px 14px rgba(236,72,153,0.4);">
+                            Terima Kasih! ❤️
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', (event) => {
+                const end = Date.now() + (3 * 1000); // 3 seconds
+                const colors = ['#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
+
+                (function frame() {
+                    confetti({
+                        particleCount: 2,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: colors
+                    });
+                    confetti({
+                        particleCount: 2,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: colors
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: colors
+                });
+            });
+
+            function closeBirthdayCelebration() {
+                const modal = document.getElementById('birthday-celebration-modal');
+                if (modal) {
+                    modal.style.opacity = '0';
+                    setTimeout(() => modal.remove(), 300);
+                }
+            }
+        </script>
+    @endif
+
     @stack('scripts')
 </body>
 </html>
