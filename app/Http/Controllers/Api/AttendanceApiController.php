@@ -641,7 +641,7 @@ class AttendanceApiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Foto profil berhasil diperbarui.',
-                'photo_url' => asset('storage/' . $path)
+                'photo_url' => $user->photo_url
             ]);
         }
 
