@@ -401,12 +401,14 @@ class HrApiController extends Controller
         $item->save();
 
         // Send internal notification
+        $dateField = $type === 'overtime' ? $item->date : ($type === 'permission' ? $item->date : $item->start_date);
         \App\Models\Notification::create([
             'user_id' => $item->user_id,
-            'title' => $action === 'approve' ? 'Pengajuan Disetujui HRD' : 'Pengajuan Ditolak HRD',
-            'content' => "Pengajuan " . ($type === 'leave' ? 'Cuti' : ($type === 'permission' ? 'Izin' : 'Lembur')) . " Anda pada tanggal " . ($type === 'permission' ? Carbon::parse($item->date)->format('d/m/Y') : Carbon::parse($item->start_date)->format('d/m/Y')) . " telah " . ($action === 'approve' ? 'disetujui' : 'ditolak') . " secara final oleh HRD.",
-            'type' => 'status_update',
-            'read_at' => null
+            'type'    => 'status_update',
+            'title'   => $action === 'approve' ? 'Pengajuan Disetujui HRD' : 'Pengajuan Ditolak HRD',
+            'message' => "Pengajuan " . ($type === 'leave' ? 'Cuti' : ($type === 'permission' ? 'Izin' : 'Lembur')) . " Anda pada tanggal " . Carbon::parse($dateField)->format('d/m/Y') . " telah " . ($action === 'approve' ? 'disetujui' : 'ditolak') . " secara final oleh HRD.",
+            'icon'    => $action === 'approve' ? 'check-circle' : 'x-circle',
+            'color'   => $action === 'approve' ? '#10B981' : '#EF4444',
         ]);
 
         return response()->json([

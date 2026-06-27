@@ -309,40 +309,46 @@ class DashboardController extends Controller
         $todayMonthDay = now()->format('m-d');
         $tomorrowMonthDay = now()->addDay()->format('m-d');
 
-        // Distribute birthdays randomly for active users, making sure at least 1 is today and 1 is tomorrow
-        $activeUsers = User::where('status', 'active')->where('id', '!=', 1)->get();
-        if ($activeUsers->isNotEmpty()) {
-            $hasToday = User::where('status', 'active')->whereNotNull('birth_date')->whereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$todayMonthDay])->exists();
-            $hasTomorrow = User::where('status', 'active')->whereNotNull('birth_date')->whereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$tomorrowMonthDay])->exists();
+        // Only seed birthdays once per day using cache, to prevent mutating production data on every page load
+        $cacheKey = 'birthday_seed_done_' . now()->format('Y-m-d');
+        if (!\Illuminate\Support\Facades\Cache::has($cacheKey)) {
+            $activeUsers = User::where('status', 'active')->where('id', '!=', 1)->get();
+            if ($activeUsers->isNotEmpty()) {
+                $hasToday = User::where('status', 'active')->whereNotNull('birth_date')->whereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$todayMonthDay])->exists();
+                $hasTomorrow = User::where('status', 'active')->whereNotNull('birth_date')->whereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$tomorrowMonthDay])->exists();
 
-            if (!$hasToday && isset($activeUsers[0])) {
-                $year = $activeUsers[0]->birth_date ? $activeUsers[0]->birth_date->year : rand(1992, 2002);
-                $activeUsers[0]->update([
-                    'birth_date' => Carbon::createFromDate($year, now()->month, now()->day)->format('Y-m-d')
-                ]);
-            }
-            if (!$hasTomorrow && isset($activeUsers[1])) {
-                $year = $activeUsers[1]->birth_date ? $activeUsers[1]->birth_date->year : rand(1992, 2002);
-                $tomorrow = now()->addDay();
-                $activeUsers[1]->update([
-                    'birth_date' => Carbon::createFromDate($year, $tomorrow->month, $tomorrow->day)->format('Y-m-d')
-                ]);
-            }
-
-            // Scatter other users to random days in the year
-            foreach ($activeUsers as $index => $ru) {
-                if ($index > 1 && (!$ru->birth_date || $ru->birth_date->format('m-d') === $todayMonthDay || $ru->birth_date->format('m-d') === $tomorrowMonthDay)) {
-                    $randMonth = rand(1, 12);
-                    $randDay = rand(1, 28);
-                    if ($randMonth === now()->month && ($randDay === now()->day || $randDay === now()->addDay()->day)) {
-                        $randDay = ($randDay + 2) % 28 + 1;
-                    }
-                    $year = $ru->birth_date ? $ru->birth_date->year : rand(1992, 2002);
-                    $ru->update([
-                        'birth_date' => Carbon::createFromDate($year, $randMonth, $randDay)->format('Y-m-d')
+                if (!$hasToday && isset($activeUsers[0])) {
+                    $year = $activeUsers[0]->birth_date ? $activeUsers[0]->birth_date->year : rand(1992, 2002);
+                    $activeUsers[0]->update([
+                        'birth_date' => Carbon::createFromDate($year, now()->month, now()->day)->format('Y-m-d')
                     ]);
                 }
+                if (!$hasTomorrow && isset($activeUsers[1])) {
+                    $year = $activeUsers[1]->birth_date ? $activeUsers[1]->birth_date->year : rand(1992, 2002);
+                    $tomorrow = now()->addDay();
+                    $activeUsers[1]->update([
+                        'birth_date' => Carbon::createFromDate($year, $tomorrow->month, $tomorrow->day)->format('Y-m-d')
+                    ]);
+                }
+
+                // Scatter remaining users to random days (only those without birth dates or colliding with today/tomorrow)
+                foreach ($activeUsers as $index => $ru) {
+                    if ($index > 1 && !$ru->birth_date) {
+                        $randMonth = rand(1, 12);
+                        $randDay = rand(1, 28);
+                        // Avoid colliding with today/tomorrow
+                        if ($randMonth == (int)now()->month && ($randDay == (int)now()->day || $randDay == (int)now()->addDay()->day)) {
+                            $randDay = ($randDay + 3) % 28 + 1;
+                        }
+                        $year = rand(1992, 2002);
+                        $ru->update([
+                            'birth_date' => Carbon::createFromDate($year, $randMonth, $randDay)->format('Y-m-d')
+                        ]);
+                    }
+                }
             }
+            // Mark seed as done for today (expires at midnight)
+            \Illuminate\Support\Facades\Cache::put($cacheKey, true, now()->endOfDay());
         }
 
         // 1. Fetch all active employees whose birthday is today, and trigger celebration

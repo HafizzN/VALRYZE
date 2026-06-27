@@ -84,14 +84,20 @@ class AnnouncementController extends Controller
     public function update(Request $request, Announcement $announcement)
     {
         $request->validate([
-            'title'    => 'required|string|max:255',
-            'content'  => 'required|string',
-            'category' => 'required|in:info,meeting,holiday,activity,other',
+            'title'      => 'required|string|max:255',
+            'content'    => 'required|string',
+            'category'   => 'required|in:info,meeting,holiday,activity,other',
+            'attachment' => 'nullable|file|max:10240',
         ]);
 
-        $announcement->update($request->only([
-            'title', 'content', 'category', 'is_pinned', 'published_at', 'expired_at'
-        ]) + ['is_pinned' => $request->boolean('is_pinned')]);
+        $data = $request->only(['title', 'content', 'category', 'published_at', 'expired_at']);
+        $data['is_pinned'] = $request->boolean('is_pinned');
+
+        if ($request->hasFile('attachment')) {
+            $data['attachment'] = $request->file('attachment')->store('announcements', 'public');
+        }
+
+        $announcement->update($data);
 
         return redirect()->route('announcements.index')->with('success', 'Pengumuman berhasil diperbarui.');
     }

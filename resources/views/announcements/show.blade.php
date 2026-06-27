@@ -82,11 +82,11 @@
                 <!-- Publisher and Date Details -->
                 <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
                     <div class="flex items-center gap-2">
-                        <div class="avatar text-[10px] w-6 h-6">{{ $announcement->user->initials ?? 'A' }}</div>
+                        <div class="avatar text-[10px] w-6 h-6">{{ $announcement->user?->initials ?? 'A' }}</div>
                         <div>
-                            <span class="font-medium text-slate-700">{{ $announcement->user->name ?? 'Administrator' }}</span>
+                            <span class="font-medium text-slate-700">{{ $announcement->user?->name ?? 'Administrator' }}</span>
                             <span class="mx-1.5">•</span>
-                            <span class="text-slate-500">{{ $announcement->user->roles->first()->name ?? 'Staff' }}</span>
+                            <span class="text-slate-500">{{ $announcement->user?->roles?->first()?->name ?? 'Staff' }}</span>
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5">

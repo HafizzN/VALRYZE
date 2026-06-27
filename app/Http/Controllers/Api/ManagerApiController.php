@@ -425,13 +425,15 @@ class ManagerApiController extends Controller
 
         $item->save();
 
-        // Send internal notification (mock or write to database if system supports it)
+        // Send internal notification
+        $dateField = $type === 'overtime' ? $item->date : ($type === 'permission' ? $item->date : $item->start_date);
         \App\Models\Notification::create([
             'user_id' => $item->user_id,
-            'title' => $action === 'approve' ? 'Pengajuan Disetujui Manager' : 'Pengajuan Ditolak Manager',
-            'content' => "Pengajuan " . ($type === 'leave' ? 'Cuti' : ($type === 'permission' ? 'Izin' : 'Lembur')) . " Anda pada tanggal " . ($type === 'permission' ? Carbon::parse($item->date)->format('d/m/Y') : Carbon::parse($item->start_date)->format('d/m/Y')) . " telah " . ($action === 'approve' ? 'disetujui' : 'ditolak') . " oleh Manager.",
-            'type' => 'status_update',
-            'read_at' => null
+            'type'    => 'status_update',
+            'title'   => $action === 'approve' ? 'Pengajuan Disetujui Manager' : 'Pengajuan Ditolak Manager',
+            'message' => "Pengajuan " . ($type === 'leave' ? 'Cuti' : ($type === 'permission' ? 'Izin' : 'Lembur')) . " Anda pada tanggal " . Carbon::parse($dateField)->format('d/m/Y') . " telah " . ($action === 'approve' ? 'disetujui' : 'ditolak') . " oleh Manager.",
+            'icon'    => $action === 'approve' ? 'check-circle' : 'x-circle',
+            'color'   => $action === 'approve' ? '#10B981' : '#EF4444',
         ]);
 
         return response()->json([

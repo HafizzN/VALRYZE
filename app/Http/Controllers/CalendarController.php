@@ -106,10 +106,11 @@ class CalendarController extends Controller
                 
             if (!$existing || in_array($existing->status, ['absent', 'holiday'])) {
                 Attendance::updateOrCreate(
-                    ['user_id' => $employee->id, 'date' => $request->date, 'shift_id' => null],
+                    ['user_id' => $employee->id, 'date' => $request->date],
                     [
                         'status' => 'holiday',
                         'notes' => $request->name,
+                        'shift_id' => null,
                     ]
                 );
             }

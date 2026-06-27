@@ -433,7 +433,8 @@
         errorDiv.classList.add('hidden');
         errorDiv.textContent = '';
 
-        fetch(`/calendar/holidays/${id}`, {
+        const deleteUrlTemplate = '{{ route("calendar.holidays.destroy", ":id") }}';
+        fetch(deleteUrlTemplate.replace(':id', id), {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

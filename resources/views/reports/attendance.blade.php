@@ -137,13 +137,13 @@
                             <td class="font-mono text-xs">{{ \Carbon\Carbon::parse($attendance->date)->format('d M Y') }}</td>
                             
                             <!-- NIK -->
-                            <td class="font-mono text-xs text-slate-600">{{ $attendance->user->nik ?? '-' }}</td>
+                            <td class="font-mono text-xs text-slate-600">{{ $attendance->user?->nik ?? '-' }}</td>
                             
                             <!-- Karyawan -->
-                            <td class="font-bold text-slate-800">{{ $attendance->user->name ?? '-' }}</td>
+                            <td class="font-bold text-slate-800">{{ $attendance->user?->name ?? '-' }}</td>
                             
                             <!-- Divisi -->
-                            <td>{{ $attendance->user->division->name ?? '-' }}</td>
+                            <td>{{ $attendance->user?->division?->name ?? '-' }}</td>
                             
                             <!-- Check In -->
                             <td class="font-mono font-semibold {{ $attendance->status == 'late' ? 'text-amber-600' : 'text-slate-700' }}">
