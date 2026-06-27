@@ -648,6 +648,32 @@ class AttendanceApiController extends Controller
     }
 
     /**
+     * Serve user profile photo dynamically.
+     */
+    public function servePhoto($id)
+    {
+        $user = \App\Models\User::find($id);
+        if (!$user || !$user->photo) {
+            abort(404);
+        }
+
+        if (str_starts_with($user->photo, 'data:image/')) {
+            $data = explode(',', $user->photo);
+            if (count($data) > 1) {
+                $mime = explode(';', explode(':', $data[0])[1])[0];
+                $base64Data = $data[1];
+                return response(base64_decode($base64Data))->header('Content-Type', $mime);
+            }
+        }
+
+        $path = storage_path('app/public/' . $user->photo);
+        if (!file_exists($path)) {
+            abort(404);
+        }
+        return response()->file($path);
+    }
+
+    /**
      * Update user FCM token.
      */
     public function updateFcmToken(Request $request)

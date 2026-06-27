@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public Authentication Route with brute-force protection (max 10 logins per minute)
 Route::post('/login', [AttendanceApiController::class, 'login'])->middleware('throttle:10,1');
+Route::get('/photo/{id}', [AttendanceApiController::class, 'servePhoto'])->name('api.photo.serve');
 
 // Protected Mobile API Routes (using custom token-based API authentication & rate limiting)
 Route::middleware(['auth.api', 'throttle:120,1'])->group(function () {

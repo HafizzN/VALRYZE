@@ -98,11 +98,8 @@ class User extends Authenticatable
     public function getPhotoUrlAttribute(): ?string
     {
         if ($this->photo) {
-            if (str_starts_with($this->photo, 'data:image/')) {
-                return $this->photo;
-            }
             $baseUrl = request() ? request()->getSchemeAndHttpHost() : config('app.url');
-            return $baseUrl . '/storage/' . $this->photo;
+            return $baseUrl . '/api/photo/' . $this->id;
         }
         return null;
     }
