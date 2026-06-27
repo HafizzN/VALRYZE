@@ -64,11 +64,19 @@ class ReportController extends Controller
         $month = $request->get('month', now()->format('Y-m'));
         [$year, $monthNum] = explode('-', $month);
 
-        $attendances = Attendance::with(['user.division', 'user.position'])
+        $query = Attendance::with(['user.division', 'user.position'])
             ->whereYear('date', $year)
-            ->whereMonth('date', $monthNum)
-            ->orderBy('date')
-            ->get();
+            ->whereMonth('date', $monthNum);
+
+        if ($request->filled('division_id')) {
+            $userIds = User::where('division_id', $request->division_id)->pluck('id');
+            $query->whereIn('user_id', $userIds);
+        }
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        $attendances = $query->orderBy('date')->orderBy('user_id')->get();
 
         if ($request->get('format') === 'pdf') {
             $pdf = Pdf::loadView('reports.attendance-pdf', compact('attendances', 'month'))

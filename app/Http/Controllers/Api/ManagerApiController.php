@@ -140,7 +140,7 @@ class ManagerApiController extends Controller
                     },
                     'shift_name' => $u->shift->name ?? '-',
                 ];
-            ]);
+            });
 
         return response()->json([
             'success' => true,

@@ -15,7 +15,7 @@
             Kembali ke Pengumuman
         </a>
 
-        @if(auth()->user()->hasRole(['super_admin', 'hrd']))
+        @if(auth()->user()->hasRole(['super_admin', 'hrd', 'manager']))
             <div class="flex gap-2">
                 <a href="{{ route('announcements.edit', $announcement->id) }}" class="btn btn-secondary btn-sm text-emerald-700">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

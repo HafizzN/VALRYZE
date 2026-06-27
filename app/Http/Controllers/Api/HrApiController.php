@@ -65,7 +65,7 @@ class HrApiController extends Controller
                     },
                     'join_date' => $u->join_date ? $u->join_date->format('d M Y') : '-',
                 ];
-            ]);
+            });
 
         return response()->json([
             'success' => true,
