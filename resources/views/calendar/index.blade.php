@@ -33,6 +33,9 @@
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold" style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444;">
                 <span class="w-1.5 h-1.5 rounded-full" style="background-color: #ef4444;"></span> Alpa
             </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold" style="background-color: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.2); color: #ec4899;">
+                <span class="w-1.5 h-1.5 rounded-full" style="background-color: #ec4899;"></span> Ulang Tahun
+            </span>
         </div>
     </div>
 
@@ -124,6 +127,7 @@
                     
                     $holiday = $holidays->get($dateStr);
                     $dayAttendances = $attendances->get($dateStr);
+                    $dayBirthdays = isset($birthdays) ? $birthdays->get(sprintf('%02d', $day)) : null;
                     
                     // Style classes mapping
                     $cardClass = 'calendar-day-card ';
@@ -154,6 +158,17 @@
                             <span class="inline-flex items-center px-1.5 py-0.5 rounded-[4px] text-[8px] font-extrabold uppercase tracking-wide bg-emerald-500 text-white leading-none">TODAY</span>
                         @endif
                     </div>
+
+                    <!-- Birthdays list -->
+                    @if($dayBirthdays && $dayBirthdays->isNotEmpty())
+                        <div class="mt-1.5 flex flex-col gap-1 w-full items-center justify-center">
+                            @foreach($dayBirthdays as $bUser)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[8px] font-extrabold w-full justify-center" style="background-color: rgba(236, 72, 153, 0.12); border: 1px solid rgba(236, 72, 153, 0.25); color: #ec4899; text-shadow: 0 0 10px rgba(236, 72, 153, 0.1);" title="Ulang Tahun: {{ $bUser->name }}">
+                                    🎂 {{ explode(' ', $bUser->name)[0] }}
+                                </span>
+                            @endforeach
+                        </div>
+                    @endif
 
                     <!-- Centered Elegant Day Content Info (Using robust inline RGBA styles for high fidelity pops) -->
                     <div class="mt-2 flex-1 flex flex-col justify-center items-center w-full">

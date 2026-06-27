@@ -55,6 +55,13 @@ class CalendarController extends Controller
             ->get()
             ->keyBy(fn($h) => $h->date->format('Y-m-d'));
 
+        // Fetch birthdays for the selected month
+        $birthdays = User::where('status', 'active')
+            ->whereNotNull('birth_date')
+            ->whereMonth('birth_date', $monthNum)
+            ->get()
+            ->groupBy(fn($u) => $u->birth_date->format('d'));
+
         // Fetch employees list for dropdown if authorized
         $employees = collect();
         if ($user->hasRole(['super_admin', 'hrd'])) {
@@ -66,7 +73,7 @@ class CalendarController extends Controller
                 ->get();
         }
 
-        return view('calendar.index', compact('attendances', 'holidays', 'employees', 'selectedUser', 'month', 'canFilter'));
+        return view('calendar.index', compact('attendances', 'holidays', 'employees', 'selectedUser', 'month', 'canFilter', 'birthdays'));
     }
 
     /**

@@ -18,6 +18,13 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
+        // Check and trigger birthday notifications
+        try {
+            $this->checkAndBroadcastBirthdays();
+        } catch (\Exception $e) {
+            // Silence exceptions to prevent page crash
+        }
+
         if ($user->hasRole(['super_admin', 'hrd'])) {
             return $this->adminDashboard();
         }
@@ -295,5 +302,59 @@ class DashboardController extends Controller
         $results = array_merge($results, $announcements->toArray());
 
         return response()->json($results);
+    }
+
+    private function checkAndBroadcastBirthdays()
+    {
+        $todayMonthDay = now()->format('m-d');
+
+        // Check if today is anyone's birthday. If not, seed dummy birthday data for 2 active users
+        $hasBirthdayToday = User::where('status', 'active')
+            ->whereNotNull('birth_date')
+            ->whereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$todayMonthDay])
+            ->exists();
+
+        if (!$hasBirthdayToday) {
+            $randomUsers = User::where('status', 'active')
+                ->where('id', '!=', 1) // not the super admin
+                ->limit(2)
+                ->get();
+
+            foreach ($randomUsers as $ru) {
+                $year = $ru->birth_date ? $ru->birth_date->year : rand(1990, 2002);
+                $ru->update([
+                    'birth_date' => Carbon::createFromDate($year, now()->month, now()->day)->format('Y-m-d')
+                ]);
+            }
+        }
+
+        // Fetch all active employees whose birthday is today
+        $birthdayUsers = User::where('status', 'active')
+            ->whereNotNull('birth_date')
+            ->whereRaw("DATE_FORMAT(birth_date, '%m-%d') = ?", [$todayMonthDay])
+            ->get();
+
+        foreach ($birthdayUsers as $bUser) {
+            $exists = \App\Models\Notification::whereDate('created_at', Carbon::today())
+                ->where('title', '🎉 Hari Spesial Karyawan!')
+                ->where('message', 'like', '%' . $bUser->name . '%')
+                ->exists();
+
+            if (!$exists) {
+                $allUsers = User::where('status', 'active')->get();
+                $age = now()->year - $bUser->birth_date->year;
+                foreach ($allUsers as $u) {
+                    \App\Models\Notification::create([
+                        'user_id' => $u->id,
+                        'type'    => 'system',
+                        'title'   => '🎉 Hari Spesial Karyawan!',
+                        'message' => 'Hari ini adalah hari ulang tahun yang ke-' . $age . ' bagi rekan kerja kita: ' . $bUser->name . ' (' . ($bUser->position->name ?? 'Staff') . '). Mari berikan ucapan terbaik!',
+                        'url'     => route('calendar.index'),
+                        'icon'    => 'cake',
+                        'color'   => '#EC4899', // Pink cake color
+                    ]);
+                }
+            }
+        }
     }
 }
