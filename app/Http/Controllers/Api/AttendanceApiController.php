@@ -629,14 +629,10 @@ class AttendanceApiController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            // Delete old photo if exists
-            if ($user->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->photo)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
-            }
-
-            // Save new photo
-            $path = $request->file('photo')->store('profile-photos', 'public');
-            $user->update(['photo' => $path]);
+            // Convert to Base64 to bypass serverless ephemeral storage limitations
+            $file = $request->file('photo');
+            $base64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $user->update(['photo' => $base64]);
 
             return response()->json([
                 'success' => true,
