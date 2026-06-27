@@ -18,7 +18,12 @@ class FcmService
         $serviceAccount = null;
 
         if ($credentials) {
-            $serviceAccount = json_decode($credentials, true);
+            $decoded = base64_decode($credentials, true);
+            if ($decoded !== false && json_decode($decoded, true) !== null) {
+                $serviceAccount = json_decode($decoded, true);
+            } else {
+                $serviceAccount = json_decode($credentials, true);
+            }
         } else {
             $serviceAccountPath = storage_path('app/firebase-service-account.json');
             if (file_exists($serviceAccountPath)) {
