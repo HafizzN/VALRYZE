@@ -73,8 +73,12 @@
                             </td>
                             <td>
                                 <div class="flex items-center gap-2">
-                                    <div class="avatar" style="width: 28px; height: 28px; font-size: 0.6rem;">
-                                        {{ $log->user ? $log->user->initials : 'AD' }}
+                                    <div class="avatar" style="width: 28px; height: 28px; font-size: 0.6rem; overflow: hidden;">
+                                        @if($log->user?->photo)
+                                            <img src="{{ $log->user->photo_url }}" alt="{{ $log->user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        @else
+                                            {{ $log->user ? $log->user->initials : 'AD' }}
+                                        @endif
                                     </div>
                                     <div>
                                         <div class="font-semibold text-slate-800">{{ $log->user ? $log->user->name : 'System Admin' }}</div>

@@ -82,7 +82,13 @@
                 <!-- Publisher and Date Details -->
                 <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
                     <div class="flex items-center gap-2">
-                        <div class="avatar text-[10px] w-6 h-6">{{ $announcement->user?->initials ?? 'A' }}</div>
+                        <div class="avatar text-[10px] w-6 h-6" style="overflow: hidden;">
+                            @if($announcement->user?->photo)
+                                <img src="{{ $announcement->user->photo_url }}" alt="{{ $announcement->user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            @else
+                                {{ $announcement->user?->initials ?? 'A' }}
+                            @endif
+                        </div>
                         <div>
                             <span class="font-medium text-slate-700">{{ $announcement->user?->name ?? 'Administrator' }}</span>
                             <span class="mx-1.5">•</span>

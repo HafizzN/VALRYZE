@@ -30,15 +30,15 @@
             <div>
                 <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 0.75rem;">Informasi Karyawan</div>
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding: 0.75rem; background: rgba(255,255,255,0.03); border-radius: 10px;">
-                    @if($leave->user->employee?->photo)
-                    <img src="{{ Storage::url($leave->user->employee->photo) }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                    @if($leave->user->photo)
+                    <img src="{{ $leave->user->photo_url }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
                     @else
                     <div class="avatar" style="width: 48px; height: 48px; font-size: 0.85rem;">{{ $leave->user->initials }}</div>
                     @endif
                     <div>
                         <div style="font-weight: 600;">{{ $leave->user->name }}</div>
-                        <div style="font-size: 0.75rem; color: #64748b;">{{ $leave->user->employee?->position?->name ?? '-' }}</div>
-                        <div style="font-size: 0.72rem; color: #64748b;">{{ $leave->user->employee?->division?->name ?? '-' }}</div>
+                        <div style="font-size: 0.75rem; color: #64748b;">{{ $leave->user->position?->name ?? '-' }}</div>
+                        <div style="font-size: 0.72rem; color: #64748b;">{{ $leave->user->division?->name ?? '-' }}</div>
                     </div>
                 </div>
             </div>

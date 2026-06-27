@@ -40,7 +40,13 @@
                     @hasrole(['super_admin', 'hrd', 'manager'])
                     <td>
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <div class="avatar" style="width: 28px; height: 28px; font-size: 0.62rem;">{{ $ot->user?->initials }}</div>
+                            <div class="avatar" style="width: 28px; height: 28px; font-size: 0.62rem; overflow: hidden;">
+                                @if($ot->user?->photo)
+                                    <img src="{{ $ot->user->photo_url }}" alt="{{ $ot->user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                @else
+                                    {{ $ot->user?->initials }}
+                                @endif
+                            </div>
                             <span style="font-size: 0.8rem;">{{ $ot->user?->name }}</span>
                         </div>
                     </td>

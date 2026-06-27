@@ -73,7 +73,13 @@
 
                         <div class="flex items-center justify-between border-t border-slate-200/60 pt-3 mt-auto">
                             <div class="flex items-center gap-2">
-                                <div class="avatar text-[9px] w-5 h-5">{{ $announcement->user?->initials ?? 'A' }}</div>
+                                <div class="avatar text-[9px] w-5 h-5" style="overflow: hidden;">
+                                    @if($announcement->user?->photo)
+                                        <img src="{{ $announcement->user->photo_url }}" alt="{{ $announcement->user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    @else
+                                        {{ $announcement->user?->initials ?? 'A' }}
+                                    @endif
+                                </div>
                                 <span class="text-[10px] text-slate-500">{{ $announcement->user?->name ?? 'Admin' }}</span>
                             </div>
                             <a href="{{ route('announcements.show', $announcement->id) }}" class="text-xs font-semibold text-amber-500 hover:text-amber-600 flex items-center gap-1">
@@ -127,7 +133,13 @@
 
                     <div class="flex items-center justify-between border-t border-slate-200/60 pt-3 mt-auto">
                         <div class="flex items-center gap-2">
-                            <div class="avatar text-[9px] w-5 h-5">{{ $announcement->user?->initials ?? 'A' }}</div>
+                            <div class="avatar text-[9px] w-5 h-5" style="overflow: hidden;">
+                                @if($announcement->user?->photo)
+                                    <img src="{{ $announcement->user->photo_url }}" alt="{{ $announcement->user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                @else
+                                    {{ $announcement->user?->initials ?? 'A' }}
+                                @endif
+                            </div>
                             <span class="text-[10px] text-slate-500">{{ $announcement->user?->name ?? 'Admin' }}</span>
                         </div>
                         <a href="{{ route('announcements.show', $announcement->id) }}" class="text-xs font-semibold text-emerald-700 hover:text-emerald-600 flex items-center gap-1">

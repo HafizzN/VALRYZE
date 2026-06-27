@@ -83,7 +83,13 @@
                              onclick="focusMarker({{ $loop->index }})">
                             <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
                                 <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
-                                    <div class="avatar" style="width: 28px; height: 28px; font-size: 0.62rem; flex-shrink: 0;">{{ $attendance->user->initials ?? 'K' }}</div>
+                                    <div class="avatar" style="width: 28px; height: 28px; font-size: 0.62rem; flex-shrink: 0; overflow: hidden;">
+                                        @if($attendance->user?->photo)
+                                            <img src="{{ $attendance->user->photo_url }}" alt="{{ $attendance->user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        @else
+                                            {{ $attendance->user->initials ?? 'K' }}
+                                        @endif
+                                    </div>
                                     <div style="min-width: 0;">
                                         <div style="font-size: 0.78rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $attendance->user->name }}</div>
                                         <div style="font-size: 0.65rem; color: var(--text-muted); font-family: monospace;">{{ $attendance->user->nik }}</div>

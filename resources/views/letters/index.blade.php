@@ -102,7 +102,13 @@
                             </td>
                             <td>
                                 <div class="flex items-center gap-2">
-                                    <div class="avatar text-[10px] w-6 h-6">{{ $letter->user->initials ?? 'K' }}</div>
+                                    <div class="avatar text-[10px] w-6 h-6" style="overflow: hidden;">
+                                        @if($letter->user?->photo)
+                                            <img src="{{ $letter->user->photo_url }}" alt="{{ $letter->user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        @else
+                                            {{ $letter->user->initials ?? 'K' }}
+                                        @endif
+                                    </div>
                                     <span>{{ $letter->user->name ?? 'System' }}</span>
                                 </div>
                             </td>
