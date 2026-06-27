@@ -34,16 +34,16 @@
         {{-- Shift Selection Card --}}
         <div class="card mb-6">
             <div class="form-group mb-0">
-                <label class="form-label" for="shift_id" style="font-weight: 600; color: #cbd5e1;">Pilih Shift Kerja Hari Ini <span class="text-red-500">*</span></label>
-                <select name="shift_id" id="shift_id" class="form-control" required style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); color: #f1f5f9; padding: 0.75rem;">
-                    <option value="" disabled {{ !old('shift_id', auth()->user()->shift_id) ? 'selected' : '' }}>-- Pilih Shift Anda --</option>
+                <label class="form-label" for="shift_id" style="font-weight: 600; color: var(--t2);">Pilih Shift Kerja Hari Ini <span class="text-red-500">*</span></label>
+                <select name="shift_id" id="shift_id" class="form-control" required style="background: var(--bg-elevated); color: var(--t1); border: 1.5px solid var(--border-soft); border-radius: 10px; padding: 0.65rem 0.9rem;">
+                    <option value="" disabled {{ !old('shift_id', auth()->user()->shift_id) ? 'selected' : '' }} style="background: var(--bg-elevated); color: var(--t1);">-- Pilih Shift Anda --</option>
                     @foreach($shifts as $s)
-                        <option value="{{ $s->id }}" {{ old('shift_id', auth()->user()->shift_id) == $s->id ? 'selected' : '' }} style="background: var(--sidebar-bg); color: #f1f5f9;">
+                        <option value="{{ $s->id }}" {{ old('shift_id', auth()->user()->shift_id) == $s->id ? 'selected' : '' }} style="background: var(--bg-elevated); color: var(--t1);">
                             {{ $s->name }} ({{ \Carbon\Carbon::parse($s->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($s->end_time)->format('H:i') }})
                         </option>
                     @endforeach
                 </select>
-                <p class="text-[9px] text-slate-500 mt-1">Pilih shift kerja Anda untuk validasi jam masuk dan pulang hari ini</p>
+                <p class="text-[9px] style-label mt-1" style="color: var(--t4);">Pilih shift kerja Anda untuk validasi jam masuk dan pulang hari ini</p>
                 @error('shift_id')
                     <div class="form-error" style="color: #f87171; font-size: 0.72rem; margin-top: 0.25rem;">{{ $message }}</div>
                 @enderror

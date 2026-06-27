@@ -27,6 +27,9 @@ Route::middleware(['auth.api', 'throttle:120,1'])->group(function () {
     Route::post('/attendance/check-out', [AttendanceApiController::class, 'checkOut']);
     Route::get('/attendance/history', [AttendanceApiController::class, 'history']);
     Route::get('/attendance/export', [AttendanceApiController::class, 'export']);
+    Route::get('/notifications', [AttendanceApiController::class, 'notifications']);
+    Route::post('/notifications/{id}/read', [AttendanceApiController::class, 'markNotificationRead']);
+    Route::post('/notifications/read-all', [AttendanceApiController::class, 'markAllNotificationsRead']);
 
     // New Employee Feature Routes
     Route::get('/announcements', [EmployeeApiController::class, 'announcements']);
@@ -55,6 +58,8 @@ Route::middleware(['auth.api', 'throttle:120,1'])->group(function () {
         Route::post('/approvals/{type}/{id}', [HrApiController::class, 'processApproval']);
         Route::get('/form-meta', [HrApiController::class, 'formMeta']);
         Route::post('/employees', [HrApiController::class, 'storeEmployee']);
+        Route::get('/divisions', [HrApiController::class, 'divisions']);
+        Route::post('/divisions', [HrApiController::class, 'storeDivision']);
     });
 });
 

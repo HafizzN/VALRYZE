@@ -210,4 +210,90 @@ class DashboardController extends Controller
             'announcements', 'pendingRequests'
         ));
     }
+
+    public function search(\Illuminate\Http\Request $request)
+    {
+        $q = $request->query('q');
+        if (empty($q)) {
+            return response()->json([]);
+        }
+
+        $results = [];
+
+        // Search Employees (Accessible by admin/hrd/manager)
+        if (auth()->user()->hasRole(['super_admin', 'hrd', 'manager'])) {
+            $employees = \App\Models\User::where('status', 'active')
+                ->where(function($query) use ($q) {
+                    $query->where('name', 'LIKE', "%{$q}%")
+                          ->orWhere('nik', 'LIKE', "%{$q}%")
+                          ->orWhere('email', 'LIKE', "%{$q}%");
+                })
+                ->limit(5)
+                ->get()
+                ->map(function($u) {
+                    return [
+                        'type' => 'Karyawan',
+                        'title' => $u->name,
+                        'sub' => $u->nik . ' · ' . ($u->division->name ?? 'Staff'),
+                        'url' => route('employees.edit', $u->id)
+                    ];
+                });
+            $results = array_merge($results, $employees->toArray());
+        }
+
+        // Search Divisions (Admin/HRD only)
+        if (auth()->user()->hasRole(['super_admin', 'hrd'])) {
+            $divisions = \App\Models\Division::where('name', 'LIKE', "%{$q}%")
+                ->limit(3)
+                ->get()
+                ->map(function($d) {
+                    return [
+                        'type' => 'Divisi',
+                        'title' => $d->name,
+                        'sub' => 'Master Data Divisi',
+                        'url' => route('master.divisions.index')
+                    ];
+                });
+            $results = array_merge($results, $divisions->toArray());
+        }
+
+        // Search Leave Requests (Admin/HRD/Manager see all, employee sees own)
+        $leavesQuery = \App\Models\LeaveRequest::with('user');
+        if (!auth()->user()->hasRole(['super_admin', 'hrd', 'manager'])) {
+            $leavesQuery->where('user_id', auth()->id());
+        }
+        $leaves = $leavesQuery->where(function($query) use ($q) {
+            $query->whereHas('user', function($uq) use ($q) {
+                $uq->where('name', 'LIKE', "%{$q}%");
+            })->orWhere('reason', 'LIKE', "%{$q}%");
+        })
+        ->limit(3)
+        ->get()
+        ->map(function($l) {
+            return [
+                'type' => 'Pengajuan Cuti',
+                'title' => ($l->user->name ?? 'Karyawan') . ' (' . $l->reason . ')',
+                'sub' => $l->start_date->format('d M Y') . ' s/d ' . $l->end_date->format('d M Y') . ' · Status: ' . strtoupper($l->status),
+                'url' => route('leave.index')
+            ];
+        });
+        $results = array_merge($results, $leaves->toArray());
+
+        // Search Announcements
+        $announcements = \App\Models\Announcement::where('title', 'LIKE', "%{$q}%")
+            ->orWhere('content', 'LIKE', "%{$q}%")
+            ->limit(3)
+            ->get()
+            ->map(function($a) {
+                return [
+                    'type' => 'Pengumuman',
+                    'title' => $a->title,
+                    'sub' => 'Kategori: ' . strtoupper($a->category) . ' · Dipublikasikan: ' . ($a->published_at ? $a->published_at->format('d M Y') : '-'),
+                    'url' => route('announcements.index')
+                ];
+            });
+        $results = array_merge($results, $announcements->toArray());
+
+        return response()->json($results);
+    }
 }

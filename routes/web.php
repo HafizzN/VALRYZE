@@ -122,4 +122,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{notification}/read', [App\Http\Controllers\NotificationController::class, 'markRead'])->name('read');
         Route::post('/read-all', [App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('read-all');
     });
+
+    // ─── Global Search API ───────────────────────────────────────────────────
+    Route::get('/global-search', [DashboardController::class, 'search'])->name('global-search');
 });

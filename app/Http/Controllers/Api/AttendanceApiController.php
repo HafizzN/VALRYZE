@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AttendanceExport;
 
 class AttendanceApiController extends Controller
 {
@@ -505,4 +508,101 @@ class AttendanceApiController extends Controller
         return Carbon::now()->timezone('Asia/Jakarta');
     }
 
+    /**
+     * Export attendance history to Excel or PDF for mobile clients.
+     */
+    public function export(Request $request)
+    {
+        $user = Auth::user();
+        
+        $query = Attendance::with(['shift', 'user.division', 'user.position']);
+        
+        // HRD/Super Admin can export anyone, Manager can export their division, Karyawan can only export themselves
+        if ($user->hasRole(['super_admin', 'hrd'])) {
+            if ($request->filled('user_id')) {
+                $query->where('user_id', $request->user_id);
+            }
+        } elseif ($user->hasRole('manager')) {
+            $divisionUserIds = User::where('division_id', $user->division_id)->pluck('id');
+            if ($request->filled('user_id') && $divisionUserIds->contains($request->user_id)) {
+                $query->where('user_id', $request->user_id);
+            } else {
+                $query->whereIn('user_id', $divisionUserIds);
+            }
+        } else {
+            $query->where('user_id', $user->id);
+        }
+
+        $monthStr = $request->get('month', Carbon::now()->format('Y-m'));
+        [$year, $month] = explode('-', $monthStr);
+        $query->whereYear('date', $year)->whereMonth('date', $month);
+
+        $exportData = $query->orderBy('date', 'desc')->get();
+
+        if ($request->get('export') === 'excel') {
+            return Excel::download(
+                new AttendanceExport($exportData),
+                "riwayat-absensi-" . $monthStr . "-" . now()->format('Y-m-d') . ".xlsx"
+            );
+        }
+
+        if ($request->get('export') === 'pdf') {
+            $pdf = Pdf::loadView('reports.attendance-pdf', [
+                'attendances' => $exportData,
+                'month'       => $monthStr
+            ])->setPaper('a4', 'landscape');
+            return $pdf->download("riwayat-absensi-" . $monthStr . "-" . now()->format('Y-m-d') . ".pdf");
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Format ekspor tidak didukung.'
+        ], 400);
+    }
+
+    /**
+     * Get list of notifications for the authenticated user.
+     */
+    public function notifications()
+    {
+        $user = Auth::user();
+        $notifications = \App\Models\Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(30)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'notifications' => $notifications
+        ]);
+    }
+
+    /**
+     * Mark a specific notification as read.
+     */
+    public function markNotificationRead($id)
+    {
+        $user = Auth::user();
+        $notification = \App\Models\Notification::where('user_id', $user->id)->findOrFail($id);
+        $notification->markAsRead();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notifikasi berhasil ditandai dibaca.'
+        ]);
+    }
+
+    /**
+     * Mark all notifications as read.
+     */
+    public function markAllNotificationsRead()
+    {
+        $user = Auth::user();
+        \App\Models\Notification::where('user_id', $user->id)->update(['read_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Semua notifikasi berhasil ditandai dibaca.'
+        ]);
+    }
 }

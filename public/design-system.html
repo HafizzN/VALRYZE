@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VALRYZE — Design System v2.0</title>
+  <meta name="description" content="Panduan desain resmi VALRYZE Smart HR Portal. Mencakup color palette, tipografi, icon system, komponen UI, dan mockup mobile/web.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap');
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --n900:#0D1B2E;--n800:#18263D;--n700:#1E3250;--n600:#243D63;--n500:#2D4E7E;
+      --s600:#334155;--s500:#475569;--s400:#64748B;--s300:#94A3B8;--s200:#CBD5E1;--s100:#E2E8F0;--s50:#F1F5F9;
+      --bg:#F8FAFC;--card:#FFFFFF;
+      --em:#10B981;--em-bg:#ECFDF5;--em-t:#065F46;--em-mid:#34D399;
+      --am:#F59E0B;--am-bg:#FFFBEB;--am-t:#92400E;
+      --ro:#EF4444;--ro-bg:#FFF1F2;--ro-t:#9F1239;
+      --pu:#7C3AED;--pu-bg:#F5F3FF;--pu-t:#4C1D95;
+      --f:'Plus Jakarta Sans',sans-serif;
+    }
+    body{font-family:var(--f);background:var(--bg)}
+
+    /* ====== LAYOUT ====== */
+    .page{padding-bottom:48px}
+
+    /* ====== BRAND HEADER ====== */
+    .brand-header{
+      background:var(--n900);padding:36px 28px 32px;
+      position:relative;overflow:hidden;
+    }
+    .bh-geo1{
+      position:absolute;width:300px;height:300px;border-radius:50%;
+      border:1px solid rgba(255,255,255,0.04);
+      top:-120px;right:-80px;
+    }
+    .bh-geo2{
+      position:absolute;width:180px;height:180px;border-radius:50%;
+      border:1px solid rgba(16,185,129,0.08);
+      bottom:-60px;left:30%;
+    }
+    .bh-geo3{
+      position:absolute;width:60px;height:60px;border-radius:50%;
+      background:rgba(16,185,129,0.06);
+      top:40px;right:120px;
+    }
+    .bh-inner{position:relative;z-index:2}
+    .bh-pill{
+      display:inline-flex;align-items:center;gap:6px;
+      background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2);
+      border-radius:100px;padding:4px 12px;margin-bottom:16px;
+    }
+    .bh-pill-dot{width:6px;height:6px;border-radius:50%;background:var(--em)}
+    .bh-pill span{font-size:10px;font-weight:600;color:var(--em);letter-spacing:0.08em;text-transform:uppercase}
+    .bh-logo{font-size:32px;font-weight:700;color:#fff;letter-spacing:-0.03em;line-height:1;margin-bottom:4px}
+    .bh-logo em{font-style:normal;color:var(--em);font-weight:300}
+    .bh-tagline{font-size:12px;font-weight:300;color:var(--s300);font-style:italic;margin-bottom:20px;letter-spacing:0.02em}
+    .bh-chips{display:flex;gap:6px;flex-wrap:wrap}
+    .bh-chip{
+      font-size:10px;font-weight:500;color:rgba(255,255,255,0.45);
+      border:1px solid rgba(255,255,255,0.08);
+      padding:4px 12px;border-radius:100px;
+    }
+
+    /* ====== SECTION ====== */
+    .s{padding:28px 24px 0}
+    .s-hd{
+      display:flex;align-items:center;gap:12px;margin-bottom:18px;
+    }
+    .s-hd-line{flex:1;height:1px;background:var(--s100)}
+    .s-hd-label{
+      font-size:9px;font-weight:700;letter-spacing:0.15em;color:var(--s300);text-transform:uppercase;white-space:nowrap;
+    }
+
+    /* ====== COLOR SYSTEM ====== */
+    .palette{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+    .sw{display:flex;flex-direction:column;align-items:center;gap:5px}
+    .sw-main{
+      width:100%;aspect-ratio:1;border-radius:16px;
+      display:flex;flex-direction:column;justify-content:flex-end;padding:7px;
+      border:1px solid rgba(0,0,0,0.05);
+    }
+    .sw-role{font-size:8px;font-weight:600;letter-spacing:0.05em;opacity:0.6}
+    .sw-shade{height:12px;border-radius:6px;margin-top:3px;opacity:0.3}
+    .sw-n{font-size:9px;font-weight:600;color:var(--s500);text-align:center;margin-top:1px}
+    .sw-h{font-size:8px;color:var(--s300);font-family:monospace;text-align:center}
+
+    /* ====== TYPE ====== */
+    .type-card{
+      background:var(--card);border:1px solid var(--s100);border-radius:18px;
+      padding:0;overflow:hidden;
+    }
+    .type-row{
+      display:grid;grid-template-columns:76px 1fr;gap:16px;
+      padding:14px 20px;border-bottom:1px solid var(--s50);align-items:center;
+    }
+    .type-row:last-child{border-bottom:none}
+    .type-meta{font-size:9px;color:var(--s300);font-weight:500;line-height:1.5}
+    .type-meta strong{display:block;color:var(--s400);font-weight:600;font-size:9px}
+
+    /* ====== ICON GRID ====== */
+    .icon-showcase{
+      background:var(--card);border:1px solid var(--s100);border-radius:18px;
+      padding:20px;
+    }
+    .icon-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+    .ic-cell{
+      display:flex;flex-direction:column;align-items:center;gap:6px;
+      padding:10px 4px;border-radius:12px;cursor:pointer;
+      border:1px solid transparent;
+    }
+    .ic-cell:hover{background:var(--s50);border-color:var(--s100)}
+    .ic-wrap{
+      width:36px;height:36px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .ic-lbl{font-size:8px;color:var(--s400);text-align:center;font-weight:500;line-height:1.3}
+
+    /* ====== MAIN LAYOUT ====== */
+    .main-layout{padding:24px 24px 0;display:grid;grid-template-columns:240px 1fr;gap:16px;align-items:start}
+
+    /* ====== MOBILE ====== */
+    .mobile-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+    .mob-label{font-size:9px;color:var(--s300);font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
+    .device{
+      width:240px;background:var(--n900);
+      border-radius:44px;padding:10px;
+      border:1.5px solid var(--n700);
+      position:relative;
+    }
+    .device::before{
+      content:'';position:absolute;
+      top:0;left:50%;transform:translateX(-50%);
+      width:70px;height:26px;background:var(--n900);
+      border-radius:0 0 16px 16px;z-index:20;
+    }
+    .screen{
+      background:var(--bg);border-radius:36px;
+      height:480px;overflow:hidden;position:relative;
+    }
+
+    .mob-status{
+      height:44px;display:flex;align-items:flex-end;justify-content:space-between;
+      padding:0 18px 8px;background:var(--bg);position:relative;z-index:10;
+    }
+    .mob-status-time{font-size:12px;font-weight:700;color:var(--n800)}
+    .mob-status-icons{display:flex;gap:3px;align-items:center}
+    .mob-status-icons i{font-size:12px;color:var(--s400)}
+
+    .mob-scroll{padding:0 14px 80px;height:calc(480px - 44px);overflow:hidden}
+
+    .mob-greet{margin-bottom:16px}
+    .mob-greet-date{font-size:10px;color:var(--s300);margin-bottom:4px}
+    .mob-greet-name{
+      font-size:20px;font-weight:700;color:var(--n800);
+      letter-spacing:-0.025em;line-height:1.2;
+    }
+    .mob-greet-sub{font-size:11px;color:var(--s400);margin-top:3px}
+
+    .today-banner{
+      background:var(--n800);border-radius:20px;padding:16px;
+      margin-bottom:14px;position:relative;overflow:hidden;
+    }
+    .tb-geo{
+      position:absolute;width:100px;height:100px;border-radius:50%;
+      background:rgba(16,185,129,0.07);top:-30px;right:-20px;
+    }
+    .tb-geo2{
+      position:absolute;width:60px;height:60px;border-radius:50%;
+      border:1px solid rgba(255,255,255,0.04);bottom:-20px;left:20px;
+    }
+    .tb-eyebrow{
+      font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--em);
+      text-transform:uppercase;margin-bottom:10px;
+      display:flex;align-items:center;gap:6px;position:relative;z-index:1;
+    }
+    .tb-eyebrow::before{content:'';width:14px;height:1.5px;background:var(--em);border-radius:2px}
+    .tb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:relative;z-index:1}
+    .tb-item .tbl{font-size:9px;color:rgba(255,255,255,0.38);margin-bottom:2px;font-weight:500}
+    .tb-item .tbv{font-size:13px;font-weight:700;color:#fff;letter-spacing:-0.01em}
+    .tb-badge{
+      display:inline-flex;align-items:center;gap:3px;
+      font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;
+      background:rgba(16,185,129,0.15);color:var(--em);
+      border:1px solid rgba(16,185,129,0.2);
+    }
+
+    .qa-sec{margin-bottom:14px}
+    .qa-sec-label{
+      font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--s300);
+      text-transform:uppercase;margin-bottom:8px;
+    }
+    .qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    .qa-btn{
+      background:var(--card);border:1px solid var(--s100);border-radius:14px;
+      padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;
+    }
+    .qa-ico{
+      width:32px;height:32px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .qa-ico i{font-size:16px}
+    .qa-lbl{font-size:8px;color:var(--s500);font-weight:600;text-align:center}
+
+    .feed-item{
+      background:var(--card);border:1px solid var(--s100);border-radius:14px;
+      padding:10px 12px;margin-bottom:6px;
+      display:flex;align-items:center;gap:10px;
+    }
+    .feed-ico{
+      width:32px;height:32px;border-radius:10px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .feed-ico i{font-size:14px}
+    .feed-body .ft{font-size:11px;font-weight:600;color:var(--n800);line-height:1.3}
+    .feed-body .fs{font-size:9px;color:var(--s300);margin-top:1px}
+    .feed-arrow{margin-left:auto;color:var(--s200)}
+    .feed-arrow i{font-size:14px}
+
+    .mob-nav{
+      position:absolute;bottom:0;left:0;right:0;
+      background:rgba(255,255,255,0.95);
+      border-top:1px solid var(--s100);
+      display:flex;padding:8px 4px 16px;
+      border-radius:0 0 36px 36px;
+    }
+    .mob-nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+    .mob-nav-ico{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+    .mob-nav-ico.on{background:var(--n800)}
+    .mob-nav-ico i{font-size:15px;color:var(--s300)}
+    .mob-nav-ico.on i{color:#fff}
+    .mob-nav-lbl{font-size:8px;color:var(--s300);font-weight:600}
+    .mob-nav-lbl.on{color:var(--n800)}
+    .mob-nav-dot{width:4px;height:4px;border-radius:50%;background:var(--em);margin:0 auto}
+
+    /* ====== WEB DASHBOARD ====== */
+    .web-panel{display:flex;flex-direction:column;gap:10px}
+    .web-chrome{
+      background:var(--card);border:1px solid var(--s100);border-radius:18px;overflow:hidden;
+    }
+    .web-bar{
+      background:var(--n900);height:52px;display:flex;align-items:center;
+      justify-content:space-between;padding:0 20px;
+    }
+    .web-bar-left{display:flex;align-items:center;gap:16px}
+    .web-logo{font-size:14px;font-weight:700;color:#fff;letter-spacing:0.03em}
+    .web-logo em{font-style:normal;color:var(--em);font-weight:300}
+    .web-nav-pills{display:flex;gap:2px}
+    .web-nav-pill{
+      font-size:11px;font-weight:500;color:rgba(255,255,255,0.4);
+      padding:5px 10px;border-radius:8px;cursor:pointer;
+    }
+    .web-nav-pill.on{background:rgba(255,255,255,0.08);color:#fff;font-weight:600}
+    .web-bar-right{display:flex;align-items:center;gap:10px}
+    .web-notif{
+      width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,0.06);
+      display:flex;align-items:center;justify-content:center;position:relative;
+    }
+    .web-notif i{font-size:16px;color:rgba(255,255,255,0.5)}
+    .web-notif::after{
+      content:'7';position:absolute;top:4px;right:4px;
+      width:14px;height:14px;border-radius:50%;background:var(--am);
+      font-size:8px;font-weight:700;color:#fff;
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--f);
+    }
+    .web-ava{
+      width:32px;height:32px;border-radius:50%;
+      background:var(--n600);display:flex;align-items:center;justify-content:center;
+      font-size:11px;font-weight:700;color:var(--em);border:1.5px solid rgba(16,185,129,0.25);
+    }
+
+    .web-content{padding:16px;background:var(--bg);display:grid;gap:10px}
+    .web-row1{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .wstat{
+      background:var(--card);border:1px solid var(--s100);border-radius:14px;padding:14px;
+    }
+    .wstat-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+    .wstat-icon{
+      width:32px;height:32px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .wstat-icon i{font-size:16px}
+    .wstat-trend{
+      font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;
+    }
+    .wstat-trend.up{background:var(--em-bg);color:var(--em-t)}
+    .wstat-trend.warn{background:var(--am-bg);color:var(--am-t)}
+    .wstat-num{font-size:22px;font-weight:700;color:var(--n800);letter-spacing:-0.03em;line-height:1;margin-bottom:3px}
+    .wstat-label{font-size:10px;color:var(--s400);font-weight:500}
+
+    .web-row2{display:grid;grid-template-columns:1.6fr 1fr;gap:8px}
+    .wcard{
+      background:var(--card);border:1px solid var(--s100);border-radius:14px;padding:14px;
+    }
+    .wcard-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .wcard-title{font-size:11px;font-weight:700;color:var(--n800);display:flex;align-items:center;gap:6px}
+    .wcard-title i{font-size:13px;color:var(--s300)}
+    .wcard-link{font-size:10px;color:var(--s400);font-weight:500;display:flex;align-items:center;gap:3px}
+    .wcard-link i{font-size:11px}
+
+    .att-row2{
+      display:flex;align-items:center;gap:10px;padding:7px 0;
+      border-bottom:1px solid var(--s50);
+    }
+    .att-row2:last-child{border-bottom:none}
+    .att-ava{
+      width:28px;height:28px;border-radius:50%;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:9px;font-weight:700;
+    }
+    .att-info2{flex:1;min-width:0}
+    .att-name2{font-size:11px;font-weight:600;color:var(--n800)}
+    .att-sub2{font-size:9px;color:var(--s300);margin-top:1px}
+    .chip2{
+      font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;flex-shrink:0;
+    }
+    .chip2.ok{background:var(--em-bg);color:var(--em-t)}
+    .chip2.am{background:var(--am-bg);color:var(--am-t)}
+    .chip2.rs{background:var(--ro-bg);color:var(--ro-t)}
+
+    .apv2-row{
+      padding:8px 0;border-bottom:1px solid var(--s50);
+    }
+    .apv2-row:last-child{border-bottom:none}
+    .apv2-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+    .apv2-title{font-size:11px;font-weight:600;color:var(--n800)}
+    .apv2-sub{font-size:9px;color:var(--s300);margin-top:1px}
+    .apv2-type{
+      font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;
+      background:var(--s50);color:var(--s500);flex-shrink:0;
+    }
+    .apv2-btns{display:flex;gap:5px}
+    .apv2-btn{
+      font-size:9px;font-weight:700;padding:4px 10px;border-radius:8px;border:none;
+      cursor:pointer;font-family:var(--f);display:flex;align-items:center;gap:3px;
+    }
+    .apv2-btn i{font-size:10px}
+    .apv2-btn.ok{background:var(--em-bg);color:var(--em-t)}
+    .apv2-btn.no{background:var(--ro-bg);color:var(--ro-t)}
+
+    /* ====== COMPONENTS SECTION ====== */
+    .comp-sec{padding:16px 24px 0}
+    .comp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .comp-card{
+      background:var(--card);border:1px solid var(--s100);border-radius:18px;padding:18px;
+    }
+    .comp-label{font-size:9px;font-weight:700;letter-spacing:0.12em;color:var(--s300);text-transform:uppercase;margin-bottom:14px}
+
+    .btn-set{display:flex;flex-direction:column;gap:7px}
+    .b{
+      height:48px;border-radius:14px;border:none;cursor:pointer;
+      font-family:var(--f);font-size:12px;font-weight:600;
+      display:flex;align-items:center;justify-content:center;gap:7px;width:100%;
+    }
+    .b i{font-size:14px}
+    .b-navy{background:var(--n800);color:#fff}
+    .b-outline{background:transparent;border:1.5px solid var(--s200);color:var(--n800)}
+    .b-em{background:var(--em);color:#fff}
+    .b-ghost{background:var(--s50);color:var(--s500)}
+
+    .badge-showcase{display:flex;flex-direction:column;gap:8px}
+    .bdg-row{display:flex;gap:6px;flex-wrap:wrap}
+    .bdg2{
+      display:inline-flex;align-items:center;gap:5px;
+      font-size:10px;font-weight:700;padding:5px 12px;border-radius:100px;
+    }
+    .bdg2 i{font-size:11px}
+    .bdg2.ok{background:var(--em-bg);color:var(--em-t)}
+    .bdg2.wait{background:var(--am-bg);color:var(--am-t)}
+    .bdg2.no{background:var(--ro-bg);color:var(--ro-t)}
+    .bdg2.ai{background:var(--pu-bg);color:var(--pu-t)}
+    .bdg2.neu{background:var(--s50);color:var(--s500)}
+
+    .inp-set{display:flex;flex-direction:column;gap:10px}
+    .inp-group{display:flex;flex-direction:column;gap:4px}
+    .inp-lbl{font-size:10px;font-weight:700;color:var(--s500)}
+    .inp-lbl span{color:var(--ro);margin-left:1px}
+    .inp-field{
+      height:42px;background:var(--bg);border:1.5px solid var(--s100);
+      border-radius:12px;padding:0 14px;font-family:var(--f);font-size:12px;color:var(--n800);
+      outline:none;width:100%;display:flex;align-items:center;
+    }
+    input.inp-field::placeholder{color:var(--s200)}
+    .inp-field-icon{
+      position:relative;display:flex;align-items:center;
+    }
+    .inp-field-icon i{
+      position:absolute;left:12px;font-size:15px;color:var(--s300);pointer-events:none;
+    }
+    .inp-field-icon input{padding-left:36px}
+    .inp-select{
+      height:42px;background:var(--bg);border:1.5px solid var(--s100);
+      border-radius:12px;padding:0 14px;font-family:var(--f);font-size:12px;color:var(--n800);
+      outline:none;width:100%;appearance:none;cursor:pointer;
+    }
+
+    /* ====== AI INSIGHT CARD ====== */
+    .ai-card{
+      background:var(--card);border:1px solid var(--s100);border-radius:18px;
+      padding:18px;position:relative;overflow:hidden;margin-top:16px;
+    }
+    .ai-card::before{
+      content:'';position:absolute;top:0;right:0;
+      width:200px;height:200px;border-radius:50%;
+      background:var(--pu-bg);opacity:0.4;
+      transform:translate(60px,-80px);
+    }
+    .ai-hd{display:flex;align-items:center;gap:8px;margin-bottom:14px;position:relative;z-index:1}
+    .ai-ico{
+      width:32px;height:32px;border-radius:10px;background:var(--pu-bg);
+      border:1px solid rgba(124,58,237,0.15);
+      display:flex;align-items:center;justify-content:center;
+    }
+    .ai-ico i{font-size:16px;color:var(--pu)}
+    .ai-title{font-size:12px;font-weight:700;color:var(--n800)}
+    .ai-sub{font-size:10px;color:var(--s400)}
+    .ai-badge{
+      margin-left:auto;font-size:9px;font-weight:700;
+      padding:3px 10px;border-radius:20px;
+      background:var(--pu-bg);color:var(--pu-t);
+      border:1px solid rgba(124,58,237,0.12);
+    }
+    .ai-list{display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+    .ai-item{
+      background:var(--bg);border:1px solid var(--s100);border-radius:12px;
+      padding:11px 13px;display:flex;align-items:center;gap:10px;
+    }
+    .ai-ava{
+      width:28px;height:28px;border-radius:50%;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:9px;font-weight:700;
+    }
+    .ai-item-body{flex:1}
+    .ai-item-name{font-size:11px;font-weight:600;color:var(--n800)}
+    .ai-item-insight{font-size:10px;color:var(--s400);margin-top:1px}
+    .ai-item-tag{
+      font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;
+      background:var(--ro-bg);color:var(--ro-t);flex-shrink:0;
+    }
+    .ai-item-tag.warn{background:var(--am-bg);color:var(--am-t)}
+    .ai-see{
+      margin-top:12px;font-size:10px;font-weight:600;color:var(--pu);
+      display:flex;align-items:center;gap:5px;position:relative;z-index:1;cursor:pointer;
+    }
+    .ai-see i{font-size:12px}
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══ BRAND HEADER ═══ -->
+  <div class="brand-header">
+    <div class="bh-geo1"></div>
+    <div class="bh-geo2"></div>
+    <div class="bh-geo3"></div>
+    <div class="bh-inner">
+      <div class="bh-pill"><div class="bh-pill-dot"></div><span>Design System v2.0</span></div>
+      <div class="bh-logo">VAL<em>RYZE</em></div>
+      <div class="bh-tagline">Professional · Human · Calm · Elegant · Efficient</div>
+      <div class="bh-chips">
+        <div class="bh-chip">Plus Jakarta Sans</div>
+        <div class="bh-chip">Radius 20px</div>
+        <div class="bh-chip">8pt Grid</div>
+        <div class="bh-chip">Tabler Icons</div>
+        <div class="bh-chip">WCAG AA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ COLOR PALETTE ═══ -->
+  <div class="s">
+    <div class="s-hd">
+      <div class="s-hd-label">Color palette</div>
+      <div class="s-hd-line"></div>
+    </div>
+    <div class="palette">
+      <div class="sw">
+        <div class="sw-main" style="background:var(--n900)">
+          <div class="sw-role" style="color:rgba(255,255,255,0.5)">Primary</div>
+          <div class="sw-shade" style="background:var(--n600)"></div>
+        </div>
+        <div class="sw-n">Deep Navy</div><div class="sw-h">#0D1B2E</div>
+      </div>
+      <div class="sw">
+        <div class="sw-main" style="background:var(--s500)">
+          <div class="sw-role" style="color:rgba(255,255,255,0.5)">Text</div>
+          <div class="sw-shade" style="background:var(--s200)"></div>
+        </div>
+        <div class="sw-n">Slate</div><div class="sw-h">#475569</div>
+      </div>
+      <div class="sw">
+        <div class="sw-main" style="background:var(--s50);border:1px solid var(--s100)">
+          <div class="sw-role" style="color:var(--s300)">Surface</div>
+          <div class="sw-shade" style="background:var(--s200)"></div>
+        </div>
+        <div class="sw-n">BG</div><div class="sw-h">#F1F5F9</div>
+      </div>
+      <div class="sw">
+        <div class="sw-main" style="background:var(--em)">
+          <div class="sw-role" style="color:rgba(255,255,255,0.6)">Hadir</div>
+          <div class="sw-shade" style="background:var(--em-bg)"></div>
+        </div>
+        <div class="sw-n">Emerald</div><div class="sw-h">#10B981</div>
+      </div>
+      <div class="sw">
+        <div class="sw-main" style="background:var(--am)">
+          <div class="sw-role" style="color:rgba(255,255,255,0.6)">Pending</div>
+          <div class="sw-shade" style="background:var(--am-bg)"></div>
+        </div>
+        <div class="sw-n">Amber</div><div class="sw-h">#F59E0B</div>
+      </div>
+      <div class="sw">
+        <div class="sw-main" style="background:var(--ro)">
+          <div class="sw-role" style="color:rgba(255,255,255,0.6)">Reject</div>
+          <div class="sw-shade" style="background:var(--ro-bg)"></div>
+        </div>
+        <div class="sw-n">Rose</div><div class="sw-h">#EF4444</div>
+      </div>
+      <div class="sw">
+        <div class="sw-main" style="background:var(--pu)">
+          <div class="sw-role" style="color:rgba(255,255,255,0.6)">AI</div>
+          <div class="sw-shade" style="background:var(--pu-bg)"></div>
+        </div>
+        <div class="sw-n">Purple</div><div class="sw-h">#7C3AED</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ICON SHOWCASE ═══ -->
+  <div class="s">
+    <div class="s-hd">
+      <div class="s-hd-label">Icon system — Tabler outline</div>
+      <div class="s-hd-line"></div>
+    </div>
+    <div class="icon-showcase">
+      <div class="icon-grid">
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:#EFF6FF"><i class="ti ti-home" style="font-size:18px;color:#3B82F6"></i></div>
+          <div class="ic-lbl">Home</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--em-bg)"><i class="ti ti-map-pin" style="font-size:18px;color:var(--em)"></i></div>
+          <div class="ic-lbl">Absensi</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:#EFF6FF"><i class="ti ti-beach" style="font-size:18px;color:#3B82F6"></i></div>
+          <div class="ic-lbl">Cuti</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--am-bg)"><i class="ti ti-file-description" style="font-size:18px;color:var(--am)"></i></div>
+          <div class="ic-lbl">Izin</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--pu-bg)"><i class="ti ti-receipt" style="font-size:18px;color:var(--pu)"></i></div>
+          <div class="ic-lbl">Payroll</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--em-bg)"><i class="ti ti-clock-hour-4" style="font-size:18px;color:var(--em)"></i></div>
+          <div class="ic-lbl">Lembur</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:#FFF1F2"><i class="ti ti-speakerphone" style="font-size:18px;color:var(--ro)"></i></div>
+          <div class="ic-lbl">Pengumuman</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--s50)"><i class="ti ti-users" style="font-size:18px;color:var(--s500)"></i></div>
+          <div class="ic-lbl">Tim</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--s50)"><i class="ti ti-chart-bar" style="font-size:18px;color:var(--s500)"></i></div>
+          <div class="ic-lbl">Laporan</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--s50)"><i class="ti ti-settings" style="font-size:18px;color:var(--s500)"></i></div>
+          <div class="ic-lbl">Pengaturan</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--em-bg)"><i class="ti ti-check-circle" style="font-size:18px;color:var(--em)"></i></div>
+          <div class="ic-lbl">Approve</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--ro-bg)"><i class="ti ti-circle-x" style="font-size:18px;color:var(--ro)"></i></div>
+          <div class="ic-lbl">Reject</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--pu-bg)"><i class="ti ti-sparkles" style="font-size:18px;color:var(--pu)"></i></div>
+          <div class="ic-lbl">AI</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--am-bg)"><i class="ti ti-bell" style="font-size:18px;color:var(--am)"></i></div>
+          <div class="ic-lbl">Notifikasi</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:#EFF6FF"><i class="ti ti-calendar" style="font-size:18px;color:#3B82F6"></i></div>
+          <div class="ic-lbl">Kalender</div>
+        </div>
+        <div class="ic-cell">
+          <div class="ic-wrap" style="background:var(--s50)"><i class="ti ti-user-circle" style="font-size:18px;color:var(--s500)"></i></div>
+          <div class="ic-lbl">Profil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TYPE ═══ -->
+  <div class="s">
+    <div class="s-hd">
+      <div class="s-hd-label">Typography — Plus Jakarta Sans</div>
+      <div class="s-hd-line"></div>
+    </div>
+    <div class="type-card">
+      <div class="type-row">
+        <div class="type-meta"><strong>Display</strong>24px · 700</div>
+        <div style="font-size:24px;font-weight:700;color:var(--n800);letter-spacing:-0.025em;line-height:1.1">Selamat pagi, Hafiz</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><strong>Heading</strong>16px · 700</div>
+        <div style="font-size:16px;font-weight:700;color:var(--n800);letter-spacing:-0.01em">Kehadiran hari ini</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><strong>Body</strong>13px · 400</div>
+        <div style="font-size:13px;color:var(--s500);line-height:1.6">Shift 08.00–17.00 · Kantor Padang Barat · Clock in 07.58</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><strong>Label</strong>10px · 700</div>
+        <div style="font-size:10px;font-weight:700;color:var(--s300);letter-spacing:0.12em;text-transform:uppercase">Divisi Keuangan · HRD</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><strong>Mono</strong>12px</div>
+        <div style="font-size:12px;font-family:monospace;color:var(--s400);letter-spacing:0.02em">07:58:04 WIB · API v2.1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MOCKUPS ═══ -->
+  <div class="main-layout">
+    <div class="mobile-wrap">
+      <div class="mob-label">Mobile App — Karyawan</div>
+      <div class="device">
+        <div class="screen">
+          <div class="mob-status">
+            <div class="mob-status-time">09:15</div>
+            <div class="mob-status-icons">
+              <i class="ti ti-wifi"></i>
+              <i class="ti ti-battery-2"></i>
+            </div>
+          </div>
+          <div class="mob-scroll">
+            <div class="mob-greet">
+              <div class="mob-greet-date">Sabtu, 27 Jun 2026</div>
+              <div class="mob-greet-name">Selamat pagi,<br>Hafiz ✦</div>
+              <div class="mob-greet-sub">Welcome back to VALRYZE</div>
+            </div>
+            <div class="today-banner">
+              <div class="tb-geo"></div><div class="tb-geo2"></div>
+              <div class="tb-eyebrow">Hari ini</div>
+              <div class="tb-grid">
+                <div class="tb-item"><div class="tbl">Shift</div><div class="tbv">08.00–17.00</div></div>
+                <div class="tb-item"><div class="tbl">Clock in</div><div class="tbv">07.58</div></div>
+                <div class="tb-item" style="margin-top:8px">
+                  <div class="tbl">Status</div>
+                  <div class="tb-badge"><i class="ti ti-check" style="font-size:9px"></i> Hadir</div>
+                </div>
+                <div class="tb-item" style="margin-top:8px">
+                  <div class="tbl">Pending</div>
+                  <div class="tbv" style="color:var(--am)">1 item</div>
+                </div>
+              </div>
+            </div>
+            <div class="qa-sec">
+              <div class="qa-sec-label">Aksi cepat</div>
+              <div class="qa-grid">
+                <div class="qa-btn">
+                  <div class="qa-ico" style="background:#EFF6FF"><i class="ti ti-map-pin" style="color:#3B82F6"></i></div>
+                  <div class="qa-lbl">Absensi</div>
+                </div>
+                <div class="qa-btn">
+                  <div class="qa-ico" style="background:var(--em-bg)"><i class="ti ti-beach" style="color:var(--em)"></i></div>
+                  <div class="qa-lbl">Cuti</div>
+                </div>
+                <div class="qa-btn">
+                  <div class="qa-ico" style="background:var(--am-bg)"><i class="ti ti-file-description" style="color:var(--am)"></i></div>
+                  <div class="qa-lbl">Izin</div>
+                </div>
+                <div class="qa-btn">
+                  <div class="qa-ico" style="background:var(--pu-bg)"><i class="ti ti-receipt" style="color:var(--pu)"></i></div>
+                  <div class="qa-lbl">Payroll</div>
+                </div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-ico" style="background:#FFF1F2"><i class="ti ti-cake" style="color:var(--ro)"></i></div>
+              <div class="feed-body"><div class="ft">Ulang tahun Siti R.</div><div class="fs">Hari ini · Divisi HR</div></div>
+              <div class="feed-arrow"><i class="ti ti-chevron-right"></i></div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-ico" style="background:#EFF6FF"><i class="ti ti-speakerphone" style="color:#3B82F6"></i></div>
+              <div class="feed-body"><div class="ft">Pengumuman baru</div><div class="fs">Perubahan jadwal meeting</div></div>
+              <div class="feed-arrow"><i class="ti ti-chevron-right"></i></div>
+            </div>
+          </div>
+          <div class="mob-nav">
+            <div class="mob-nav-tab">
+              <div class="mob-nav-ico on"><i class="ti ti-home"></i></div>
+              <div class="mob-nav-lbl on">Today</div>
+              <div class="mob-nav-dot"></div>
+            </div>
+            <div class="mob-nav-tab">
+              <div class="mob-nav-ico"><i class="ti ti-map-pin"></i></div>
+              <div class="mob-nav-lbl">Absen</div>
+            </div>
+            <div class="mob-nav-tab">
+              <div class="mob-nav-ico"><i class="ti ti-clipboard-list"></i></div>
+              <div class="mob-nav-lbl">Requests</div>
+            </div>
+            <div class="mob-nav-tab">
+              <div class="mob-nav-ico"><i class="ti ti-users"></i></div>
+              <div class="mob-nav-lbl">People</div>
+            </div>
+            <div class="mob-nav-tab">
+              <div class="mob-nav-ico"><i class="ti ti-user-circle"></i></div>
+              <div class="mob-nav-lbl">Profil</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="web-panel">
+      <div class="web-chrome">
+        <div class="web-bar">
+          <div class="web-bar-left">
+            <div class="web-logo">VAL<em>RYZE</em></div>
+            <div class="web-nav-pills">
+              <div class="web-nav-pill on">Overview</div>
+              <div class="web-nav-pill">Karyawan</div>
+              <div class="web-nav-pill">Kehadiran</div>
+              <div class="web-nav-pill">Laporan</div>
+            </div>
+          </div>
+          <div class="web-bar-right">
+            <div class="web-notif"><i class="ti ti-bell"></i></div>
+            <div class="web-ava">HF</div>
+          </div>
+        </div>
+        <div class="web-content">
+          <div class="web-row1">
+            <div class="wstat">
+              <div class="wstat-top">
+                <div class="wstat-icon" style="background:var(--em-bg)"><i class="ti ti-users" style="color:var(--em)"></i></div>
+                <div class="wstat-trend up">+3</div>
+              </div>
+              <div class="wstat-num">148</div>
+              <div class="wstat-label">Total karyawan</div>
+            </div>
+            <div class="wstat">
+              <div class="wstat-top">
+                <div class="wstat-icon" style="background:#EFF6FF"><i class="ti ti-map-pin" style="color:#3B82F6"></i></div>
+                <div class="wstat-trend up">85%</div>
+              </div>
+              <div class="wstat-num">126</div>
+              <div class="wstat-label">Hadir hari ini</div>
+            </div>
+            <div class="wstat">
+              <div class="wstat-top">
+                <div class="wstat-icon" style="background:var(--am-bg)"><i class="ti ti-clock" style="color:var(--am)"></i></div>
+                <div class="wstat-trend warn">Perlu aksi</div>
+              </div>
+              <div class="wstat-num" style="color:var(--am)">7</div>
+              <div class="wstat-label">Approval pending</div>
+            </div>
+          </div>
+          <div class="web-row2">
+            <div class="wcard">
+              <div class="wcard-hd">
+                <div class="wcard-title"><i class="ti ti-clock-hour-4"></i> Kehadiran terkini</div>
+                <div class="wcard-link">Lihat semua <i class="ti ti-arrow-right"></i></div>
+              </div>
+              <div class="att-row2">
+                <div class="att-ava" style="background:#EFF6FF;color:#3B82F6">AH</div>
+                <div class="att-info2"><div class="att-name2">Ahmad Hafiz</div><div class="att-sub2">Keuangan · 07.58</div></div>
+                <span class="chip2 ok">Hadir</span>
+              </div>
+              <div class="att-row2">
+                <div class="att-ava" style="background:var(--em-bg);color:var(--em)">SR</div>
+                <div class="att-info2"><div class="att-name2">Siti Rahmawati</div><div class="att-sub2">HR · 08.12</div></div>
+                <span class="chip2 ok">Hadir</span>
+              </div>
+              <div class="att-row2">
+                <div class="att-ava" style="background:var(--am-bg);color:var(--am)">BS</div>
+                <div class="att-info2"><div class="att-name2">Budi Santoso</div><div class="att-sub2">IT · —</div></div>
+                <span class="chip2 am">Cuti</span>
+              </div>
+              <div class="att-row2">
+                <div class="att-ava" style="background:var(--ro-bg);color:var(--ro)">DA</div>
+                <div class="att-info2"><div class="att-name2">Dewi Anggraini</div><div class="att-sub2">Operasional · 09.22</div></div>
+                <span class="chip2 rs">Terlambat</span>
+              </div>
+            </div>
+            <div class="wcard">
+              <div class="wcard-hd">
+                <div class="wcard-title"><i class="ti ti-clipboard-check"></i> Perlu disetujui</div>
+              </div>
+              <div class="apv2-row">
+                <div class="apv2-top">
+                  <div><div class="apv2-title">Budi Santoso</div><div class="apv2-sub">Cuti 2 hari · 30 Jun</div></div>
+                  <div class="apv2-type">Cuti</div>
+                </div>
+                <div class="apv2-btns">
+                  <button class="apv2-btn ok"><i class="ti ti-check"></i> Setuju</button>
+                  <button class="apv2-btn no"><i class="ti ti-x"></i> Tolak</button>
+                </div>
+              </div>
+              <div class="apv2-row">
+                <div class="apv2-top">
+                  <div><div class="apv2-title">Rina Aulia</div><div class="apv2-sub">Lembur 3 jam · Kemarin</div></div>
+                  <div class="apv2-type">Lembur</div>
+                </div>
+                <div class="apv2-btns">
+                  <button class="apv2-btn ok"><i class="ti ti-check"></i> Setuju</button>
+                  <button class="apv2-btn no"><i class="ti ti-x"></i> Tolak</button>
+                </div>
+              </div>
+              <div class="apv2-row">
+                <div class="apv2-top">
+                  <div><div class="apv2-title">Fajar Maulana</div><div class="apv2-sub">Izin sakit · Hari ini</div></div>
+                  <div class="apv2-type">Izin</div>
+                </div>
+                <div class="apv2-btns">
+                  <button class="apv2-btn ok"><i class="ti ti-check"></i> Setuju</button>
+                  <button class="apv2-btn no"><i class="ti ti-x"></i> Tolak</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-card">
+        <div class="ai-hd">
+          <div class="ai-ico"><i class="ti ti-sparkles"></i></div>
+          <div><div class="ai-title">AI Insight</div><div class="ai-sub">Pola kehadiran minggu ini</div></div>
+          <div class="ai-badge"><i class="ti ti-sparkles" style="font-size:9px"></i> Smart</div>
+        </div>
+        <div class="ai-list">
+          <div class="ai-item">
+            <div class="ai-ava" style="background:var(--ro-bg);color:var(--ro)">DA</div>
+            <div class="ai-item-body">
+              <div class="ai-item-name">Dewi Anggraini</div>
+              <div class="ai-item-insight">Terlambat 3 hari berturut-turut</div>
+            </div>
+            <div class="ai-item-tag">Perhatian</div>
+          </div>
+          <div class="ai-item">
+            <div class="ai-ava" style="background:var(--am-bg);color:var(--am)">RK</div>
+            <div class="ai-item-body">
+              <div class="ai-item-name">Rizky Kurniawan</div>
+              <div class="ai-item-insight">Kuota cuti hampir habis (1 hari sisa)</div>
+            </div>
+            <div class="ai-item-tag warn">Monitor</div>
+          </div>
+        </div>
+        <div class="ai-see">Lihat semua insight <i class="ti ti-arrow-right"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ COMPONENTS ═══ -->
+  <div class="comp-sec">
+    <div class="s-hd" style="padding:0;margin-bottom:14px">
+      <div class="s-hd-label">Components</div>
+      <div class="s-hd-line"></div>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-label">Buttons</div>
+        <div class="btn-set">
+          <button class="b b-navy"><i class="ti ti-map-pin"></i> Check in sekarang</button>
+          <button class="b b-outline"><i class="ti ti-beach"></i> Ajukan cuti</button>
+          <button class="b b-em"><i class="ti ti-check"></i> Approve lembur</button>
+          <button class="b b-ghost"><i class="ti ti-download"></i> Unduh laporan</button>
+        </div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-label">Status badges</div>
+        <div class="badge-showcase">
+          <div class="bdg-row">
+            <span class="bdg2 ok"><i class="ti ti-check"></i> Hadir</span>
+            <span class="bdg2 wait"><i class="ti ti-clock"></i> Pending</span>
+          </div>
+          <div class="bdg-row">
+            <span class="bdg2 no"><i class="ti ti-x"></i> Ditolak</span>
+            <span class="bdg2 ai"><i class="ti ti-sparkles"></i> AI</span>
+          </div>
+          <div class="bdg-row">
+            <span class="bdg2 neu"><i class="ti ti-clock-hour-4"></i> Lembur</span>
+            <span class="bdg2 neu"><i class="ti ti-beach"></i> Cuti</span>
+          </div>
+        </div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-label">Form inputs</div>
+        <div class="inp-set">
+          <div class="inp-group">
+            <div class="inp-lbl">Nama lengkap <span>*</span></div>
+            <div class="inp-field-icon">
+              <i class="ti ti-user"></i>
+              <input class="inp-field" placeholder="Ahmad Hafiz Maulana" style="height:42px">
+            </div>
+          </div>
+          <div class="inp-group">
+            <div class="inp-lbl">Divisi</div>
+            <select class="inp-select"><option>Keuangan</option><option>Operasional</option><option>HR</option></select>
+          </div>
+          <div class="inp-group">
+            <div class="inp-lbl">Cari karyawan</div>
+            <div class="inp-field-icon">
+              <i class="ti ti-search"></i>
+              <input class="inp-field" placeholder="Nama atau NIK..." style="height:42px">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

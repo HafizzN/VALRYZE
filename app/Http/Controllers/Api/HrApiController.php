@@ -486,5 +486,42 @@ class HrApiController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Get list of all divisions.
+     */
+    public function divisions()
+    {
+        $this->checkHr();
+        $divisions = Division::all();
+        return response()->json([
+            'success' => true,
+            'divisions' => $divisions
+        ]);
+    }
+
+    /**
+     * Create a new division.
+     */
+    public function storeDivision(Request $request)
+    {
+        $this->checkHr();
+
+        $request->validate([
+            'name' => 'required|string|unique:divisions,name|max:255',
+            'code' => 'required|string|unique:divisions,code|max:50',
+        ]);
+
+        $division = Division::create([
+            'name' => $request->name,
+            'code' => $request->code,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Divisi baru berhasil ditambahkan.',
+            'division' => $division
+        ]);
+    }
 }
 
