@@ -80,6 +80,7 @@ class AttendanceController extends Controller
         $lat       = (float) $request->latitude;
         $lng       = (float) $request->longitude;
         $accuracy  = (float) $request->accuracy;
+        $bypass    = $request->boolean('bypass_restrictions');
 
         // Block if already has an active session
         $activeAttendance = $this->getActiveAttendance($user);
@@ -123,7 +124,15 @@ class AttendanceController extends Controller
         }
 
         if (!$selectedSession) {
-            return back()->with('error', '❌ Absen masuk ditolak. Anda berada di luar jam absensi untuk shift ' . $shift->name . ' (Waktu absensi dibuka mulai dari 60 menit sebelum shift dimulai hingga shift berakhir).');
+            if ($bypass) {
+                $selectedSession = [
+                    'date' => Carbon::today('Asia/Jakarta'),
+                    'start' => $sessionTodayStart,
+                    'end' => $sessionTodayEnd,
+                ];
+            } else {
+                return back()->with('error', '❌ Absen masuk ditolak. Anda berada di luar jam absensi untuk shift ' . $shift->name . ' (Waktu absensi dibuka mulai dari 60 menit sebelum shift dimulai hingga shift berakhir).');
+            }
         }
 
         $sessionDate = $selectedSession['date'];
@@ -142,7 +151,7 @@ class AttendanceController extends Controller
 
         // Fake GPS detection
         $isFakeGps = $this->geoFencing->detectFakeGps($lat, $lng, $accuracy);
-        if ($isFakeGps) {
+        if ($isFakeGps && !$bypass) {
             return back()->with('error', '⚠️ Terdeteksi penggunaan GPS palsu (Fake GPS). Absensi ditolak!');
         }
 
@@ -153,7 +162,7 @@ class AttendanceController extends Controller
             return back()->with('error', 'Tidak ada lokasi kantor yang terdaftar. Hubungi Admin.');
         }
 
-        if (!$geoResult['within_radius']) {
+        if (!$geoResult['within_radius'] && !$bypass) {
             $distance = $geoResult['distance'];
             $radius   = $geoResult['office']->radius_meters;
             return back()->with('error', "❌ Lokasi Anda terlalu jauh dari kantor. Jarak: {$distance}m, Radius diizinkan: {$radius}m");
@@ -239,6 +248,7 @@ class AttendanceController extends Controller
         $user  = Auth::user();
         $lat   = (float) $request->latitude;
         $lng   = (float) $request->longitude;
+        $bypass = $request->boolean('bypass_restrictions');
 
         $attendance = $this->getActiveAttendance($user);
         if (!$attendance) {
@@ -247,12 +257,12 @@ class AttendanceController extends Controller
         }
 
         $isFakeGps = $this->geoFencing->detectFakeGps($lat, $lng, (float) $request->accuracy);
-        if ($isFakeGps) {
+        if ($isFakeGps && !$bypass) {
             return back()->with('error', '⚠️ Terdeteksi GPS palsu. Absen pulang ditolak!');
         }
 
         $geoResult = $this->geoFencing->validateAgainstOffices($lat, $lng);
-        if (!$geoResult || !$geoResult['within_radius']) {
+        if ((!$geoResult || !$geoResult['within_radius']) && !$bypass) {
             $distance = $geoResult['distance'] ?? 'N/A';
             return back()->with('error', "❌ Lokasi tidak valid. Jarak dari kantor: {$distance}m");
         }
@@ -260,12 +270,13 @@ class AttendanceController extends Controller
         $photoPath = $this->saveBase64Photo($request->photo, 'attendance/check-out');
         $now = $this->getSecureTime();
 
+        $watermarkDistance = $geoResult ? $geoResult['distance'] : 0;
         $watermarkData = $this->watermark->buildAttendanceWatermarkData(
             $user->name,
             $now->format('d/m/Y'),
             $now->format('H:i:s'),
             $lat, $lng,
-            $geoResult['distance']
+            $watermarkDistance
         );
 
         $fullPath = Storage::disk('public')->path($photoPath);
@@ -289,7 +300,7 @@ class AttendanceController extends Controller
             $tolerance = $shift->early_out_tolerance_minutes ?? 0;
             $threshold = $shiftEndDatetime->copy()->subMinutes($tolerance);
 
-            if ($now->lt($threshold)) {
+            if ($now->lt($threshold) && !$bypass) {
                 $earliestAllowedCheckOut = $threshold->format('H:i');
                 return back()->with('error', "❌ Absen pulang ditolak. Anda tidak diperbolehkan melakukan absen pulang sebelum waktu shift berakhir. Absen pulang untuk shift " . $shift->name . " paling awal dibuka pukul " . $earliestAllowedCheckOut . " WIB.");
             }

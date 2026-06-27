@@ -169,6 +169,7 @@ class AttendanceApiController extends Controller
         $lat       = (float) $request->latitude;
         $lng       = (float) $request->longitude;
         $accuracy  = (float) $request->accuracy;
+        $bypass    = $request->boolean('bypass_restrictions') || $user->hasRole(['super_admin', 'hrd', 'manager']);
 
         // Block if already has an active session
         $activeAttendance = Attendance::where('user_id', $user->id)
@@ -217,10 +218,18 @@ class AttendanceApiController extends Controller
         }
 
         if (!$selectedSession) {
-            return response()->json([
-                'success' => false,
-                'message' => '❌ Absen masuk ditolak. Anda berada di luar jam absensi untuk shift ' . $shift->name . ' (Waktu absensi dibuka mulai dari 60 menit sebelum shift dimulai hingga shift berakhir).'
-            ], 400);
+            if ($bypass) {
+                $selectedSession = [
+                    'date' => Carbon::today('Asia/Jakarta'),
+                    'start' => $sessionTodayStart,
+                    'end' => $sessionTodayEnd,
+                ];
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ Absen masuk ditolak. Anda berada di luar jam absensi untuk shift ' . $shift->name . ' (Waktu absensi dibuka mulai dari 60 menit sebelum shift dimulai hingga shift berakhir).'
+                ], 400);
+            }
         }
 
         $sessionDate = $selectedSession['date'];
@@ -241,7 +250,7 @@ class AttendanceApiController extends Controller
 
         // Fake GPS detection (at server level, in addition to client level)
         $isFakeGps = $this->geoFencing->detectFakeGps($lat, $lng, $accuracy);
-        if ($isFakeGps) {
+        if ($isFakeGps && !$bypass) {
             return response()->json([
                 'success' => false,
                 'message' => '⚠️ Terdeteksi penggunaan GPS palsu (Fake GPS). Absensi ditolak!'
@@ -257,7 +266,7 @@ class AttendanceApiController extends Controller
             ], 400);
         }
 
-        if (!$geoResult['within_radius']) {
+        if (!$geoResult['within_radius'] && !$bypass) {
             $distance = $geoResult['distance'];
             $radius   = $geoResult['office']->radius_meters;
             return response()->json([
@@ -340,6 +349,7 @@ class AttendanceApiController extends Controller
         $lat   = (float) $request->latitude;
         $lng   = (float) $request->longitude;
         $accuracy = (float) $request->accuracy;
+        $bypass = $request->boolean('bypass_restrictions') || $user->hasRole(['super_admin', 'hrd', 'manager']);
 
         // Find active session
         $attendance = Attendance::where('user_id', $user->id)
@@ -356,7 +366,7 @@ class AttendanceApiController extends Controller
 
         // Server-level fake GPS detection
         $isFakeGps = $this->geoFencing->detectFakeGps($lat, $lng, $accuracy);
-        if ($isFakeGps) {
+        if ($isFakeGps && !$bypass) {
             return response()->json([
                 'success' => false,
                 'message' => '⚠️ Terdeteksi GPS palsu. Absen pulang ditolak!'
@@ -365,7 +375,7 @@ class AttendanceApiController extends Controller
 
         // Validate office radius
         $geoResult = $this->geoFencing->validateAgainstOffices($lat, $lng);
-        if (!$geoResult || !$geoResult['within_radius']) {
+        if ((!$geoResult || !$geoResult['within_radius']) && !$bypass) {
             $distance = $geoResult['distance'] ?? 'N/A';
             return response()->json([
                 'success' => false,
@@ -378,12 +388,13 @@ class AttendanceApiController extends Controller
         $now = $this->getSecureTime();
 
         // Watermark data
+        $watermarkDistance = $geoResult ? $geoResult['distance'] : 0;
         $watermarkData = $this->watermark->buildAttendanceWatermarkData(
             $user->name,
             $now->format('d/m/Y'),
             $now->format('H:i:s'),
             $lat, $lng,
-            $geoResult['distance']
+            $watermarkDistance
         );
 
         $fullPath = Storage::disk('public')->path($photoPath);
@@ -408,7 +419,7 @@ class AttendanceApiController extends Controller
             $tolerance = $shift->early_out_tolerance_minutes ?? 0;
             $threshold = $shiftEndDatetime->copy()->subMinutes($tolerance);
 
-            if ($now->lt($threshold)) {
+            if ($now->lt($threshold) && !$bypass) {
                 $earliestAllowedCheckOut = $threshold->format('H:i');
                 return response()->json([
                     'success' => false,

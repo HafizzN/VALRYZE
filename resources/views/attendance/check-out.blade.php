@@ -55,6 +55,18 @@
         </div>
     </div>
 
+    @if(auth()->user()->hasRole(['super_admin', 'hrd', 'manager']))
+    <div class="card mb-6" style="border: 1px dashed #f59e0b; background: rgba(245,158,11,0.05);">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <input type="checkbox" name="bypass_restrictions" id="bypass_restrictions" value="1" class="rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-500" style="width: 1.1rem; height: 1.1rem; cursor: pointer;">
+            <div>
+                <label for="bypass_restrictions" class="font-bold text-amber-400 text-xs cursor-pointer">Bypass Pembatasan Demo (Geofence & Jam Kerja)</label>
+                <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 0.1rem;">Centang untuk mengizinkan absensi dari lokasi mana pun dan sebelum shift resmi berakhir (Khusus Demo).</div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Main form --}}
     <form method="POST" action="{{ route('attendance.check-out.store') }}" id="check-out-form">
         @csrf
