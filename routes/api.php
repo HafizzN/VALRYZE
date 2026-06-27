@@ -31,6 +31,7 @@ Route::middleware(['auth.api', 'throttle:120,1'])->group(function () {
     Route::post('/notifications/{id}/read', [AttendanceApiController::class, 'markNotificationRead']);
     Route::post('/notifications/read-all', [AttendanceApiController::class, 'markAllNotificationsRead']);
     Route::post('/profile/photo', [AttendanceApiController::class, 'updateProfilePhoto']);
+    Route::post('/profile/fcm-token', [AttendanceApiController::class, 'updateFcmToken']);
 
     // New Employee Feature Routes
     Route::get('/announcements', [EmployeeApiController::class, 'announcements']);

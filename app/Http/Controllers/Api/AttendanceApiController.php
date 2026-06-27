@@ -650,4 +650,23 @@ class AttendanceApiController extends Controller
             'message' => 'File foto tidak ditemukan.'
         ], 400);
     }
+
+    /**
+     * Update user FCM token.
+     */
+    public function updateFcmToken(Request $request)
+    {
+        $user = Auth::user();
+        
+        $request->validate([
+            'fcm_token' => 'required|string',
+        ]);
+
+        $user->update(['fcm_token' => $request->fcm_token]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'FCM Token berhasil diperbarui.'
+        ]);
+    }
 }
