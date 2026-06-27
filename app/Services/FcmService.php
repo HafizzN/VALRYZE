@@ -14,14 +14,24 @@ class FcmService
             return false;
         }
 
-        $serviceAccountPath = storage_path('app/firebase-service-account.json');
-        if (!file_exists($serviceAccountPath)) {
-            Log::warning("Firebase service account JSON not found at {$serviceAccountPath}");
+        $credentials = env('FIREBASE_CREDENTIALS');
+        $serviceAccount = null;
+
+        if ($credentials) {
+            $serviceAccount = json_decode($credentials, true);
+        } else {
+            $serviceAccountPath = storage_path('app/firebase-service-account.json');
+            if (file_exists($serviceAccountPath)) {
+                $serviceAccount = json_decode(file_get_contents($serviceAccountPath), true);
+            }
+        }
+
+        if (!$serviceAccount) {
+            Log::warning("Firebase credentials not found in env (FIREBASE_CREDENTIALS) or storage/app/firebase-service-account.json");
             return false;
         }
 
         try {
-            $serviceAccount = json_decode(file_get_contents($serviceAccountPath), true);
             $accessToken = self::getAccessToken($serviceAccount);
             if (!$accessToken) {
                 return false;
