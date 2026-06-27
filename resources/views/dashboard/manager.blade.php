@@ -90,17 +90,17 @@
     {{-- Announcements --}}
     <div class="card">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-            <h3 style="font-size: 0.9rem; font-weight: 600;">Pengumuman Aktif</h3>
-            <a href="{{ route('announcements.index') }}" style="font-size: 0.75rem; color: #6366f1;">Lihat semua →</a>
+            <h3 style="font-size: 0.9rem; font-weight: 600; color: var(--t1);">Pengumuman Aktif</h3>
+            <a href="{{ route('announcements.index') }}" style="font-size: 0.75rem; color: var(--em);">Lihat semua →</a>
         </div>
         <div style="display: flex; flex-direction: column; gap: 0.6rem; max-height: 280px; overflow-y: auto;">
             @forelse($announcements as $ann)
-            <a href="{{ route('announcements.show', $ann) }}" style="display: block; padding: 0.65rem 0.85rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='rgba(99,102,241,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
-                <div style="font-size: 0.8rem; font-weight: 500; color: #e2e8f0;">{{ Str::limit($ann->title, 55) }}</div>
-                <div style="font-size: 0.68rem; color: #64748b; margin-top: 0.15rem;">{{ $ann->created_at->diffForHumans() }}</div>
+            <a href="{{ route('announcements.show', $ann) }}" style="display: block; padding: 0.65rem 0.85rem; background: var(--bg-base); border: 1px solid var(--border-soft); border-radius: 8px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-base)'">
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--t1);">{{ Str::limit($ann->title, 55) }}</div>
+                <div style="font-size: 0.68rem; color: var(--t3); margin-top: 0.15rem;">{{ $ann->created_at->diffForHumans() }}</div>
             </a>
             @empty
-            <div style="text-align: center; color: #64748b; padding: 2rem; font-size: 0.82rem;">Belum ada pengumuman</div>
+            <div style="text-align: center; color: var(--t3); padding: 2rem; font-size: 0.82rem;">Belum ada pengumuman</div>
             @endforelse
         </div>
     </div>

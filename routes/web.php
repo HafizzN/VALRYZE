@@ -76,7 +76,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('documents/{document}/download', [CompanyDocumentController::class, 'download'])->name('documents.download');
 
     // ─── Announcements (Pengumuman) ──────────────────────────────────────────
-    Route::resource('announcements', AnnouncementController::class);
+    Route::resource('announcements', AnnouncementController::class)->only(['index', 'show']);
+    Route::middleware(['role:super_admin|hrd|manager'])->group(function () {
+        Route::resource('announcements', AnnouncementController::class)->except(['index', 'show']);
+    });
 
     // ─── Employees (Karyawan) ────────────────────────────────────────────────
     Route::middleware(['role:super_admin|hrd'])->group(function () {

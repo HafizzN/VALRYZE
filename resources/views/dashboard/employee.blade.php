@@ -155,18 +155,18 @@
     {{-- Announcements --}}
     <div class="card">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-            <h3 style="font-size: 0.9rem; font-weight: 600;">Pengumuman Terbaru</h3>
-            <a href="{{ route('announcements.index') }}" style="font-size: 0.75rem; color: #16a34a;">Lihat semua →</a>
+            <h3 style="font-size: 0.9rem; font-weight: 600; color: var(--t1);">Pengumuman Terbaru</h3>
+            <a href="{{ route('announcements.index') }}" style="font-size: 0.75rem; color: var(--em);">Lihat semua →</a>
         </div>
         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
             @forelse($announcements as $ann)
-            <a href="{{ route('announcements.show', $ann) }}" style="display: block; padding: 0.75rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='rgba(34,197,94,0.08)'" onmouseout="this.style.background='#f8fafc'">
+            <a href="{{ route('announcements.show', $ann) }}" style="display: block; padding: 0.75rem; background: var(--bg-base); border: 1px solid var(--border-soft); border-radius: 10px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-base)'">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
                     <span class="badge badge-{{ $ann->category_color ?? 'info' }}" style="font-size: 0.65rem;">{{ $ann->category_label ?? $ann->category }}</span>
-                    <span style="font-size: 0.65rem; color: #64748b;">{{ $ann->created_at->diffForHumans() }}</span>
+                    <span style="font-size: 0.65rem; color: var(--t4);">{{ $ann->created_at->diffForHumans() }}</span>
                 </div>
-                <div style="font-size: 0.82rem; font-weight: 500; color: var(--text-main);">{{ Str::limit($ann->title, 60) }}</div>
-                <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.2rem;">{{ Str::limit(strip_tags($ann->content), 80) }}</div>
+                <div style="font-size: 0.82rem; font-weight: 700; color: var(--t1);">{{ Str::limit($ann->title, 60) }}</div>
+                <div style="font-size: 0.72rem; color: var(--t3); margin-top: 0.2rem;">{{ Str::limit(strip_tags($ann->content), 80) }}</div>
             </a>
             @empty
             <div style="text-align: center; color: #64748b; padding: 2rem; font-size: 0.82rem;">Belum ada pengumuman</div>

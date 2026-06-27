@@ -57,8 +57,8 @@ class AnnouncementController extends Controller
                 \App\Models\Notification::create([
                     'user_id' => $user->id,
                     'type'    => 'document', // Categorized as document/info type
-                    'title'   => 'Pengumuman Baru 📢',
-                    'message' => 'Admin baru saja merilis pengumuman: "' . $request->title . '"',
+                    'title'   => '📢 Pengumuman Baru Perusahaan',
+                    'message' => 'Ada pengumuman resmi baru: "' . $request->title . '". Harap dibaca dan ditindaklanjuti.',
                     'url'     => route('announcements.index'),
                     'icon'    => 'campaign',
                     'color'   => '#06B6D4', // VALRYZE Cyan
