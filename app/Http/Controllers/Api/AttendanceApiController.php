@@ -138,6 +138,10 @@ class AttendanceApiController extends Controller
                 'position' => $user->position->name ?? '-',
                 'shift_id' => $user->shift_id,
                 'role_name' => $user->roles->first()->name ?? 'karyawan',
+                'basic_salary' => $user->basic_salary,
+                'allowance' => $user->allowance,
+                'bpjs_deduction' => $user->bpjs_deduction,
+                'tax_deduction' => $user->tax_deduction,
             ],
             'active_attendance' => $activeAttendance ? [
                 'id' => $activeAttendance->id,
