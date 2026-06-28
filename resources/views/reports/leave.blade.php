@@ -2,178 +2,234 @@
 
 @section('title', 'Laporan Cuti Karyawan')
 @section('page-title', 'Laporan Cuti')
-@section('breadcrumb', 'Laporan / Cuti')
+@section('breadcrumb', 'Laporan › Cuti')
+
+@push('styles')
+<style>
+    .tab-pill {
+        padding: 0.45rem 1.1rem; border-radius: 10px; font-size: 0.78rem;
+        font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+        border: 1px solid transparent; background: transparent; color: var(--t4);
+    }
+    .tab-pill:hover  { color: var(--t2); background: var(--bg-elevated); }
+    .tab-pill.active { background: var(--em-ghost); border-color: var(--em-border); color: var(--em); }
+
+    .quota-bar-track {
+        height: 5px; background: var(--bg-elevated); border-radius: 99px;
+        overflow: hidden; margin-top: 0.3rem; width: 80px;
+    }
+    .quota-bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s ease; }
+
+    .type-icon {
+        font-size: 1rem; width: 28px; height: 28px; border-radius: 8px;
+        display: inline-flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+</style>
+@endpush
 
 @section('content')
-<div class="space-y-6" x-data="{ activePanel: 'balance' }">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h2 class="text-xl font-bold text-slate-800">Laporan & Kuota Cuti Karyawan</h2>
-            <p class="text-xs text-slate-500">Pantau sisa kuota cuti tahunan karyawan serta histori pengajuan cuti yang disetujui</p>
+@php
+    $typeMap = [
+        'annual'   => ['label' => 'Tahunan',   'badge' => 'badge-success', 'icon' => '📋'],
+        'sick'     => ['label' => 'Sakit',     'badge' => 'badge-purple',  'icon' => '🏥'],
+        'maternity'=> ['label' => 'Melahirkan','badge' => 'badge-orange',  'icon' => '👶'],
+        'wedding'  => ['label' => 'Pernikahan','badge' => 'badge-info',    'icon' => '💍'],
+        'marriage' => ['label' => 'Pernikahan','badge' => 'badge-info',    'icon' => '💍'],
+        'big_leave'=> ['label' => 'Cuti Besar','badge' => 'badge-gray',    'icon' => '🌴'],
+    ];
+    $totalUsed = collect($leaveBalance)->sum('used');
+    $totalRemaining = collect($leaveBalance)->sum('remaining');
+@endphp
+
+<div x-data="{ activePanel: 'balance' }">
+
+{{-- Header --}}
+<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+    <div>
+        <h2 style="font-size:1.1rem;font-weight:800;color:var(--t1);letter-spacing:-0.01em;">Laporan & Kuota Cuti Karyawan</h2>
+        <p style="font-size:0.78rem;color:var(--t4);margin-top:0.25rem;">
+            Pantau sisa kuota cuti tahunan dan riwayat pengajuan yang disetujui
+        </p>
+    </div>
+</div>
+
+{{-- Filter --}}
+<div class="card mb-5">
+    <form method="GET" action="{{ route('reports.leave') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="year">Tahun Laporan</label>
+            <select name="year" id="year" class="form-control">
+                @for($y = now()->year; $y >= now()->year - 4; $y--)
+                <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                @endfor
+            </select>
         </div>
-    </div>
-
-    <!-- Filters Card -->
-    <div class="card col-span-3">
-        <form method="GET" action="{{ route('reports.leave') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="form-group mb-0">
-                <label class="form-label" for="year">Tahun Laporan</label>
-                <select name="year" id="year" class="form-control">
-                    @for($y = now()->year; $y >= now()->year - 4; $y--)
-                        <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
-                    @endfor
-                </select>
-            </div>
-            <div class="flex items-end gap-2">
-                <button type="submit" class="btn btn-primary flex-1">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                    Tampilkan Data
-                </button>
-            </div>
-            <div></div> <!-- Spacer -->
-        </form>
-    </div>
-
-    <!-- Navigation Tabs -->
-    <div class="flex border-b border-slate-200 gap-1 bg-slate-50/50 p-1.5 rounded-lg max-w-md">
-        <button @click="activePanel = 'balance'" :class="activePanel === 'balance' ? 'bg-emerald-700 text-white' : 'text-slate-600 hover:text-slate-800'" class="flex-1 py-2 text-center text-xs font-semibold rounded-md transition">
-            Kuota & Sisa Cuti
-        </button>
-        <button @click="activePanel = 'history'" :class="activePanel === 'history' ? 'bg-emerald-700 text-white' : 'text-slate-600 hover:text-slate-800'" class="flex-1 py-2 text-center text-xs font-semibold rounded-md transition">
-            Riwayat Penggunaan Cuti
-        </button>
-    </div>
-
-    <!-- Panel 1: Leave Balance Summary -->
-    <div x-show="activePanel === 'balance'" class="card" x-transition>
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-bold text-slate-700">Kuota Cuti Tahunan Aktif</h3>
-            <span class="text-[10px] text-slate-500">Menampilkan seluruh karyawan aktif</span>
+        <div style="display:flex;align-items:flex-end;gap:0.5rem;">
+            <button type="submit" class="btn btn-primary flex-1">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                Tampilkan
+            </button>
         </div>
+        <div></div>
+    </form>
+</div>
 
+{{-- Tabs --}}
+<div style="display:flex;gap:0.4rem;background:var(--bg-card);border:1px solid var(--border-soft);border-radius:14px;padding:0.35rem;width:fit-content;margin-bottom:1.25rem;">
+    <button @click="activePanel='balance'" :class="activePanel==='balance' ? 'active' : ''" class="tab-pill">
+        📋 Kuota & Sisa Cuti
+    </button>
+    <button @click="activePanel='history'" :class="activePanel==='history' ? 'active' : ''" class="tab-pill">
+        📅 Riwayat Disetujui
+    </button>
+</div>
+
+{{-- Panel 1: Leave Balance --}}
+<div x-show="activePanel === 'balance'" x-transition>
+    <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <h3 style="font-size:0.9rem;font-weight:700;color:var(--t1);">Kuota Cuti Tahunan – {{ $year }}</h3>
+            <span style="font-size:0.72rem;color:var(--t4);">{{ count($leaveBalance) }} karyawan</span>
+        </div>
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>NIK</th>
                         <th>Karyawan</th>
                         <th>Divisi</th>
-                        <th>Kuota Tahunan</th>
-                        <th>Telah Digunakan</th>
-                        <th>Sisa Saldo Cuti</th>
+                        <th style="text-align:center;">Kuota</th>
+                        <th style="text-align:center;">Terpakai</th>
+                        <th style="text-align:center;">Sisa</th>
+                        <th style="text-align:center;">Progress</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($leaveBalance as $item)
-                        <tr>
-                            <td class="font-mono text-xs text-slate-600">{{ $item['user']->nik }}</td>
-                            <td class="font-bold text-slate-800">{{ $item['user']->name }}</td>
-                            <td>{{ $item['user']->division->name ?? '-' }}</td>
-                            <td class="font-mono text-xs text-slate-700 font-semibold">{{ $item['user']->annual_leave_quota }} hari</td>
-                            <td class="font-mono text-xs text-amber-500 font-semibold">{{ $item['user']->annual_leave_used }} hari</td>
-                            <td>
-                                @if($item['remaining'] > 3)
-                                    <span class="badge badge-success font-mono font-semibold">{{ $item['remaining'] }} hari</span>
-                                @elseif($item['remaining'] > 0)
-                                    <span class="badge badge-warning font-mono font-semibold">{{ $item['remaining'] }} hari</span>
-                                @else
-                                    <span class="badge badge-danger font-mono font-semibold">{{ $item['remaining'] }} hari</span>
-                                @endif
-                            </td>
-                        </tr>
+                    @php
+                        $quota = $item['user']->annual_leave_quota ?? 12;
+                        $used  = $item['user']->annual_leave_used ?? 0;
+                        $remaining = $item['remaining'];
+                        $usedPct = $quota > 0 ? min(100, round(($used / $quota) * 100)) : 0;
+                        $barColor = $remaining > 3 ? 'linear-gradient(90deg,#10B981,#34D399)' : ($remaining > 0 ? 'linear-gradient(90deg,#F59E0B,#FCD34D)' : 'linear-gradient(90deg,#EF4444,#FCA5A5)');
+                    @endphp
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:0.6rem;">
+                                <div class="avatar" style="width:28px;height:28px;font-size:0.58rem;overflow:hidden;flex-shrink:0;">
+                                    @if($item['user']->photo)
+                                        <img src="{{ $item['user']->photo_url }}" style="width:100%;height:100%;object-fit:cover;">
+                                    @else {{ $item['user']->initials }} @endif
+                                </div>
+                                <div>
+                                    <div style="font-size:0.8rem;font-weight:700;color:var(--t1);">{{ $item['user']->name }}</div>
+                                    <div style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--t4);">{{ $item['user']->nik }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-size:0.75rem;color:var(--t3);">{{ $item['user']->division->name ?? '—' }}</td>
+                        <td style="text-align:center;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--t2);">{{ $quota }}h</td>
+                        <td style="text-align:center;font-family:'JetBrains Mono',monospace;font-weight:700;color:#FCD34D;">{{ $used }}h</td>
+                        <td style="text-align:center;">
+                            @if($remaining > 3)
+                                <span class="badge badge-success" style="font-family:'JetBrains Mono',monospace;font-weight:800;">{{ $remaining }}h</span>
+                            @elseif($remaining > 0)
+                                <span class="badge badge-warning" style="font-family:'JetBrains Mono',monospace;font-weight:800;">{{ $remaining }}h</span>
+                            @else
+                                <span class="badge badge-danger" style="font-family:'JetBrains Mono',monospace;font-weight:800;">Habis</span>
+                            @endif
+                        </td>
+                        <td style="text-align:center;">
+                            <div class="quota-bar-track" style="margin:0 auto;">
+                                <div class="quota-bar-fill" style="width:{{ $usedPct }}%;background:{{ $barColor }};"></div>
+                            </div>
+                            <div style="font-size:0.62rem;color:var(--t5);margin-top:0.15rem;">{{ $usedPct }}%</div>
+                        </td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-8 text-slate-500">
-                                Tidak ada data karyawan ditemukan.
-                            </td>
-                        </tr>
+                    <tr>
+                        <td colspan="6" style="text-align:center;padding:3rem;color:var(--t4);">
+                            <div style="font-size:2rem;margin-bottom:0.5rem;">📋</div>
+                            <div style="font-weight:600;color:var(--t3);">Tidak ada data karyawan</div>
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+</div>
 
-    <!-- Panel 2: Leave History Logs -->
-    <div x-show="activePanel === 'history'" class="card" x-transition style="display: none;">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-bold text-slate-700">Daftar Cuti yang Disetujui (Tahun {{ $year }})</h3>
-            <span class="text-[10px] text-slate-500">Menampilkan halaman {{ $leaves->currentPage() }} dari {{ $leaves->lastPage() }}</span>
+{{-- Panel 2: Leave History --}}
+<div x-show="activePanel === 'history'" x-transition style="display:none;">
+    <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <h3 style="font-size:0.9rem;font-weight:700;color:var(--t1);">Cuti Disetujui – {{ $year }}</h3>
+            <span style="font-size:0.72rem;color:var(--t4);">Hal. {{ $leaves->currentPage() }} / {{ $leaves->lastPage() }}</span>
         </div>
-
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>Tanggal Cuti</th>
-                        <th>NIK</th>
                         <th>Karyawan</th>
-                        <th>Divisi</th>
-                        <th>Durasi</th>
-                        <th>Tipe Cuti</th>
-                        <th>Alasan / Keterangan</th>
+                        <th>Periode Cuti</th>
+                        <th>Jenis</th>
+                        <th style="text-align:center;">Durasi</th>
+                        <th>Alasan</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($leaves as $leave)
-                        <tr>
-                            <!-- Leave Date Range -->
-                            <td class="font-mono text-xs">
-                                {{ \Carbon\Carbon::parse($leave->start_date)->format('d M Y') }} s/d 
-                                {{ \Carbon\Carbon::parse($leave->end_date)->format('d M Y') }}
-                            </td>
-                            <!-- NIK -->
-                            <td class="font-mono text-xs text-slate-600">{{ $leave->user->nik }}</td>
-                            <!-- Name -->
-                            <td class="font-bold text-slate-800">{{ $leave->user->name }}</td>
-                            <!-- Division -->
-                            <td>{{ $leave->user->division->name ?? '-' }}</td>
-                            <!-- Duration -->
-                            <td class="font-mono text-xs font-semibold text-emerald-700">
-                                {{ $leave->duration ?? \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }} hari
-                            </td>
-                            <!-- Type -->
-                            <td>
-                                @switch($leave->leave_type)
-                                    @case('annual')
-                                        <span class="badge badge-success">Cuti Tahunan</span>
-                                        @break
-                                    @case('sick')
-                                        <span class="badge badge-purple">Sakit</span>
-                                        @break
-                                    @case('marriage')
-                                        <span class="badge badge-info">Pernikahan</span>
-                                        @break
-                                    @case('maternity')
-                                        <span class="badge badge-orange">Melahirkan</span>
-                                        @break
-                                    @default
-                                        <span class="badge badge-gray">{{ ucfirst($leave->leave_type) }}</span>
-                                @endswitch
-                            </td>
-                            <!-- Reason -->
-                            <td class="text-xs text-slate-600 max-w-xs truncate" title="{{ $leave->reason }}">
-                                {{ $leave->reason }}
-                            </td>
-                        </tr>
+                    @php $t = $typeMap[$leave->leave_type] ?? ['label' => $leave->leave_type, 'badge' => 'badge-gray', 'icon' => '📝']; @endphp
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:0.6rem;">
+                                <div class="avatar" style="width:28px;height:28px;font-size:0.58rem;overflow:hidden;flex-shrink:0;">
+                                    @if($leave->user->photo)
+                                        <img src="{{ $leave->user->photo_url }}" style="width:100%;height:100%;object-fit:cover;">
+                                    @else {{ $leave->user->initials }} @endif
+                                </div>
+                                <div>
+                                    <div style="font-size:0.8rem;font-weight:700;color:var(--t1);">{{ $leave->user->name }}</div>
+                                    <div style="font-size:0.65rem;color:var(--t4);">{{ $leave->user->division->name ?? '—' }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight:600;font-size:0.8rem;color:var(--t1);">{{ \Carbon\Carbon::parse($leave->start_date)->format('d M Y') }}</div>
+                            <div style="font-size:0.68rem;color:var(--t4);">s/d {{ \Carbon\Carbon::parse($leave->end_date)->format('d M Y') }}</div>
+                        </td>
+                        <td>
+                            <span class="badge {{ $t['badge'] }}">{{ $t['icon'] }} {{ $t['label'] }}</span>
+                        </td>
+                        <td style="text-align:center;">
+                            <span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--em);font-size:0.82rem;">
+                                {{ $leave->duration ?? \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }}h
+                            </span>
+                        </td>
+                        <td style="max-width:200px;">
+                            <div style="font-size:0.75rem;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ $leave->reason }}">
+                                {{ Str::limit($leave->reason, 50) }}
+                            </div>
+                        </td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-10 text-slate-500">
-                                Belum ada riwayat cuti disetujui pada tahun {{ $year }}.
-                            </td>
-                        </tr>
+                    <tr>
+                        <td colspan="5" style="text-align:center;padding:3rem;color:var(--t4);">
+                            <div style="font-size:2rem;margin-bottom:0.5rem;">🌴</div>
+                            <div style="font-weight:600;color:var(--t3);">Belum ada riwayat cuti disetujui</div>
+                            <div style="font-size:0.75rem;margin-top:0.25rem;">Tahun {{ $year }}</div>
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-
         @if($leaves->hasPages())
-            <div class="mt-4">
-                {{ $leaves->links() }}
-            </div>
+        <div style="margin-top:1.5rem;padding:0 0.25rem;">{{ $leaves->links() }}</div>
         @endif
     </div>
+</div>
+
 </div>
 @endsection

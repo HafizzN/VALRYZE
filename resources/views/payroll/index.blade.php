@@ -2,129 +2,242 @@
 
 @section('title', 'Pengaturan Gaji Karyawan')
 @section('page-title', 'Payroll & Gaji')
-@section('breadcrumb', 'Payroll / Pengaturan Gaji')
+@section('breadcrumb', 'Payroll › Pengaturan Gaji')
+
+@push('styles')
+<style>
+    .payroll-hero {
+        position: relative; overflow: hidden;
+        background: linear-gradient(135deg, #071830 0%, #0D2540 50%, #0A1E38 100%);
+        border: 1px solid rgba(16,185,129,0.18);
+        border-radius: 20px; padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+    .payroll-hero::before {
+        content:''; position:absolute; top:-50px; right:-30px;
+        width:200px; height:200px; border-radius:50%;
+        background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
+        pointer-events:none;
+    }
+
+    .salary-row { transition: all 0.2s ease; }
+    .salary-row:hover { background: var(--bg-hover) !important; }
+
+    .salary-cell-base {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem; font-weight: 700;
+        color: var(--t1);
+    }
+    .salary-cell-deduct {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem; font-weight: 700;
+        color: #FCA5A5;
+    }
+    .salary-cell-net {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.82rem; font-weight: 800;
+        color: #34D399;
+    }
+
+    .custom-tag {
+        display: inline-block; font-size: 0.6rem; font-weight: 800;
+        padding: 0.1rem 0.4rem; border-radius: 99px;
+        background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3);
+        color: var(--em); letter-spacing: 0.04em;
+    }
+    .auto-tag {
+        display: inline-block; font-size: 0.6rem;
+        padding: 0.1rem 0.35rem; border-radius: 99px;
+        background: rgba(148,163,184,0.1); border: 1px solid rgba(148,163,184,0.15);
+        color: var(--t5); font-style: italic;
+    }
+
+    .summary-kpi {
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px; padding: 1rem 1.25rem;
+        transition: all 0.2s ease;
+    }
+    .summary-kpi:hover { transform: translateY(-2px); border-color: var(--em-border); }
+</style>
+@endpush
 
 @section('content')
-<div class="space-y-6 font-sans">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+@php
+    // Aggregate totals across current page
+    $totalPayroll = 0;
+    $totalNetPayroll = 0;
+    foreach ($users as $u) {
+        $b = $u->basic_salary;
+        if (is_null($b)) {
+            $pos = strtolower($u->position->name ?? '');
+            $b = 6500000;
+            if (str_contains($pos, 'director') || str_contains($pos, 'direktur')) $b = 35000000;
+            elseif (str_contains($pos, 'manager') || str_contains($pos, 'head')) $b = 22000000;
+            elseif (str_contains($pos, 'supervisor') || str_contains($pos, 'lead')) $b = 15000000;
+            elseif (str_contains($pos, 'senior')) $b = 11000000;
+            elseif (str_contains($pos, 'staff') || str_contains($pos, 'officer')) $b = 8000000;
+        }
+        $all = $u->allowance ?? (int)($b * 0.15);
+        $bpjs = $u->bpjs_deduction ?? (int)($b * 0.03);
+        $tax  = $u->tax_deduction  ?? (int)($b * 0.05);
+        $totalPayroll += $b;
+        $totalNetPayroll += $b + $all - $bpjs - $tax;
+    }
+@endphp
+
+{{-- Hero --}}
+<div class="payroll-hero">
+    <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-5">
         <div>
-            <h2 class="text-xl font-bold text-slate-800 font-bold">Pengaturan Gaji Karyawan</h2>
-            <p class="text-xs text-slate-500">Kelola komponen gaji pokok, tunjangan jabatan, serta potongan BPJS & PPh21 untuk seluruh karyawan.</p>
+            <p style="font-size:0.62rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(16,185,129,0.7);margin-bottom:0.35rem;">
+                💰 Manajemen Kompensasi
+            </p>
+            <h1 style="font-size:1.35rem;font-weight:800;color:#F1F5F9;letter-spacing:-0.02em;">Pengaturan Gaji Karyawan</h1>
+            <p style="font-size:0.78rem;color:#64748B;margin-top:0.25rem;">Kelola gaji pokok, tunjangan, BPJS, dan PPh21 seluruh karyawan</p>
         </div>
-    </div>
-
-    <!-- Table Card -->
-    <div class="card bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-bold text-slate-700">Daftar Gaji Karyawan</h3>
-            <span class="text-[10px] text-slate-500">Menampilkan {{ $users->count() }} karyawan di halaman ini</span>
-        </div>
-
-        <div class="table-container overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="border-b border-slate-100 text-slate-600 text-xs">
-                        <th class="py-3 font-semibold">Nama Karyawan</th>
-                        <th class="py-3 font-semibold">Jabatan / Divisi</th>
-                        <th class="py-3 font-semibold text-right">Gaji Pokok</th>
-                        <th class="py-3 font-semibold text-right">Tunjangan</th>
-                        <th class="py-3 font-semibold text-right">Potongan (BPJS + Pajak)</th>
-                        <th class="py-3 font-semibold text-right">Estimasi Take Home Pay</th>
-                        <th class="py-3 font-semibold text-center" style="width: 120px">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="text-xs text-slate-700">
-                    @forelse($users as $usr)
-                        @php
-                            // Fallback calculations matching HrApiController
-                            $basic = $usr->basic_salary;
-                            $hasCustom = !is_null($basic);
-
-                            if (!$hasCustom) {
-                                // Default basic salary Rp 6.5M or based on position/division name
-                                $pos = strtolower($usr->position->name ?? '');
-                                $basic = 6500000;
-                                if (str_contains($pos, 'director') || str_contains($pos, 'direktur')) {
-                                    $basic = 35000000;
-                                } elseif (str_contains($pos, 'manager') || str_contains($pos, 'head')) {
-                                    $basic = 22000000;
-                                } elseif (str_contains($pos, 'supervisor') || str_contains($pos, 'lead')) {
-                                    $basic = 15000000;
-                                } elseif (str_contains($pos, 'senior')) {
-                                    $basic = 11000000;
-                                } elseif (str_contains($pos, 'staff') || str_contains($pos, 'officer')) {
-                                    $basic = 8000000;
-                                }
-                            }
-
-                            $allowance = $usr->allowance ?? (int) ($basic * 0.15);
-                            $bpjs = $usr->bpjs_deduction ?? (int) ($basic * 0.03);
-                            $tax = $usr->tax_deduction ?? (int) ($basic * 0.05);
-                            $deductions = $bpjs + $tax;
-                            $net = $basic + $allowance - $deductions;
-                        @endphp
-                        <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                            <!-- Name -->
-                            <td class="py-3.5">
-                                <div class="flex items-center gap-3">
-                                    <div class="avatar text-xs w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-700">{{ $usr->initials }}</div>
-                                    <div>
-                                        <div class="font-bold text-slate-800">{{ $usr->name }}</div>
-                                        <div class="text-[10px] text-slate-500 font-mono">{{ $usr->nik ?? 'TIDAK TERTAUT' }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <!-- Position & Division -->
-                            <td class="py-3.5">
-                                <div class="font-semibold text-slate-800">{{ $usr->position->name ?? '-' }}</div>
-                                <div class="text-[10px] text-slate-500">{{ $usr->division->name ?? '-' }}</div>
-                            </td>
-                            <!-- Basic Salary -->
-                            <td class="py-3.5 text-right font-mono font-semibold">
-                                Rp {{ number_format($basic, 0, ',', '.') }}
-                                @if(!$hasCustom)
-                                    <div class="text-[8px] text-slate-400 italic">Kalkulasi Otomatis</div>
-                                @else
-                                    <div class="text-[8px] text-emerald-600 font-bold">Kustom</div>
-                                @endif
-                            </td>
-                            <!-- Allowance -->
-                            <td class="py-3.5 text-right font-mono text-slate-600">
-                                Rp {{ number_format($allowance, 0, ',', '.') }}
-                            </td>
-                            <!-- Deductions -->
-                            <td class="py-3.5 text-right font-mono text-rose-600">
-                                Rp {{ number_format($deductions, 0, ',', '.') }}
-                                <div class="text-[8px] text-slate-400">BPJS: Rp {{ number_format($bpjs, 0, ',', '.') }} | Pajak: Rp {{ number_format($tax, 0, ',', '.') }}</div>
-                            </td>
-                            <!-- Net Salary -->
-                            <td class="py-3.5 text-right font-mono font-bold text-slate-900">
-                                Rp {{ number_format($net, 0, ',', '.') }}
-                            </td>
-                            <!-- Action -->
-                            <td class="py-3.5 text-center">
-                                <a href="{{ route('payroll.edit', $usr->id) }}" class="btn btn-secondary btn-sm rounded-xl text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border-none transition-colors py-1.5 px-3">
-                                    Edit Gaji
-                                </a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-10 text-slate-400">
-                                Tidak ada karyawan yang terdaftar.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @if($users->hasPages())
-            <div class="mt-4">
-                {{ $users->links() }}
+        <div class="grid grid-cols-2 gap-3 shrink-0">
+            <div class="summary-kpi" style="text-align:right;">
+                <div style="font-size:0.62rem;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.2rem;">Total Gaji Pokok</div>
+                <div style="font-size:1rem;font-weight:800;color:var(--t1);font-family:'JetBrains Mono',monospace;">Rp {{ number_format($totalPayroll, 0, ',', '.') }}</div>
             </div>
-        @endif
+            <div class="summary-kpi" style="text-align:right;">
+                <div style="font-size:0.62rem;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.2rem;">Total Take Home Pay</div>
+                <div style="font-size:1rem;font-weight:800;color:#34D399;font-family:'JetBrains Mono',monospace;">Rp {{ number_format($totalNetPayroll, 0, ',', '.') }}</div>
+            </div>
+        </div>
     </div>
 </div>
+
+{{-- Flash --}}
+@if(session('success'))
+<div class="alert alert-success mb-4">
+    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    {{ session('success') }}
+</div>
+@endif
+
+{{-- Table --}}
+<div class="card">
+    <div class="flex items-center justify-between mb-4">
+        <h3 style="font-size:0.9rem;font-weight:700;color:var(--t1);">Daftar Gaji Karyawan</h3>
+        <span style="font-size:0.72rem;color:var(--t4);">{{ $users->count() }} karyawan di halaman ini</span>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Karyawan</th>
+                    <th>Jabatan / Divisi</th>
+                    <th style="text-align:right;">Gaji Pokok</th>
+                    <th style="text-align:right;">Tunjangan</th>
+                    <th style="text-align:right;">Potongan</th>
+                    <th style="text-align:right;">Take Home Pay</th>
+                    <th style="text-align:center;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($users as $i => $usr)
+                @php
+                    $basic = $usr->basic_salary;
+                    $hasCustom = !is_null($basic);
+                    if (!$hasCustom) {
+                        $pos = strtolower($usr->position->name ?? '');
+                        $basic = 6500000;
+                        if (str_contains($pos, 'director') || str_contains($pos, 'direktur')) $basic = 35000000;
+                        elseif (str_contains($pos, 'manager') || str_contains($pos, 'head')) $basic = 22000000;
+                        elseif (str_contains($pos, 'supervisor') || str_contains($pos, 'lead')) $basic = 15000000;
+                        elseif (str_contains($pos, 'senior')) $basic = 11000000;
+                        elseif (str_contains($pos, 'staff') || str_contains($pos, 'officer')) $basic = 8000000;
+                    }
+                    $allowance = $usr->allowance ?? (int)($basic * 0.15);
+                    $bpjs      = $usr->bpjs_deduction ?? (int)($basic * 0.03);
+                    $tax       = $usr->tax_deduction  ?? (int)($basic * 0.05);
+                    $deductions = $bpjs + $tax;
+                    $net = $basic + $allowance - $deductions;
+                @endphp
+                <tr class="salary-row">
+                    <td style="color:var(--t4);font-size:0.72rem;">{{ $users->firstItem() + $i }}</td>
+
+                    {{-- Karyawan --}}
+                    <td>
+                        <div style="display:flex;align-items:center;gap:0.75rem;">
+                            <div class="avatar" style="width:36px;height:36px;font-size:0.7rem;overflow:hidden;flex-shrink:0;">
+                                @if($usr->photo)
+                                    <img src="{{ $usr->photo_url }}" alt="{{ $usr->name }}" style="width:100%;height:100%;object-fit:cover;">
+                                @else
+                                    {{ $usr->initials }}
+                                @endif
+                            </div>
+                            <div>
+                                <div style="font-size:0.83rem;font-weight:700;color:var(--t1);">{{ $usr->name }}</div>
+                                <div style="font-size:0.67rem;font-family:'JetBrains Mono',monospace;color:var(--t4);">{{ $usr->nik ?? '—' }}</div>
+                            </div>
+                        </div>
+                    </td>
+
+                    {{-- Jabatan --}}
+                    <td>
+                        <div style="font-size:0.8rem;font-weight:600;color:var(--t2);">{{ $usr->position->name ?? '—' }}</div>
+                        <div style="font-size:0.67rem;color:var(--t4);">{{ $usr->division->name ?? '—' }}</div>
+                    </td>
+
+                    {{-- Gaji Pokok --}}
+                    <td style="text-align:right;">
+                        <div class="salary-cell-base">Rp {{ number_format($basic, 0, ',', '.') }}</div>
+                        @if($hasCustom)
+                            <span class="custom-tag">KUSTOM</span>
+                        @else
+                            <span class="auto-tag">otomatis</span>
+                        @endif
+                    </td>
+
+                    {{-- Tunjangan --}}
+                    <td style="text-align:right;">
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:600;color:#60A5FA;">
+                            Rp {{ number_format($allowance, 0, ',', '.') }}
+                        </div>
+                    </td>
+
+                    {{-- Potongan --}}
+                    <td style="text-align:right;">
+                        <div class="salary-cell-deduct">Rp {{ number_format($deductions, 0, ',', '.') }}</div>
+                        <div style="font-size:0.62rem;color:var(--t5);margin-top:0.1rem;">
+                            BPJS {{ number_format($bpjs/1000, 0) }}K · PPh {{ number_format($tax/1000, 0) }}K
+                        </div>
+                    </td>
+
+                    {{-- Net --}}
+                    <td style="text-align:right;">
+                        <div class="salary-cell-net">Rp {{ number_format($net, 0, ',', '.') }}</div>
+                    </td>
+
+                    {{-- Aksi --}}
+                    <td style="text-align:center;">
+                        <a href="{{ route('payroll.edit', $usr->id) }}" class="btn btn-secondary btn-sm">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            Edit
+                        </a>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8" style="text-align:center;padding:3.5rem;color:var(--t4);">
+                        <div style="font-size:2rem;margin-bottom:0.75rem;">💰</div>
+                        <div style="font-weight:600;color:var(--t3);">Tidak ada data karyawan</div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    @if($users->hasPages())
+    <div style="margin-top:1.5rem;padding:0 0.25rem;">{{ $users->links() }}</div>
+    @endif
+</div>
+
 @endsection

@@ -6,14 +6,33 @@
 
 @section('content')
 <div class="max-w-2xl mx-auto">
+
+    {{-- Progress Steps --}}
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:1.5rem;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0.3rem;">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--em);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;box-shadow:0 0 14px var(--em-glow);">1</div>
+            <span style="font-size:0.62rem;font-weight:700;color:var(--em);text-align:center;">Jenis &amp; Tanggal</span>
+        </div>
+        <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--em),var(--border-soft));margin-bottom:1rem;"></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0.3rem;">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-elevated);border:2px solid var(--border-soft);color:var(--t4);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;">2</div>
+            <span style="font-size:0.62rem;font-weight:600;color:var(--t4);text-align:center;">Alasan</span>
+        </div>
+        <div style="flex:1;height:2px;background:var(--border-soft);margin-bottom:1rem;"></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0.3rem;">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-elevated);border:2px solid var(--border-soft);color:var(--t4);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;">3</div>
+            <span style="font-size:0.62rem;font-weight:600;color:var(--t4);text-align:center;">Dokumen &amp; Kirim</span>
+        </div>
+    </div>
+
     <div class="card">
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06);">
-            <div style="width: 40px; height: 40px; background: rgba(99,102,241,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                <svg style="width: 20px; height: 20px; color: #a78bfa;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border-dim);">
+            <div style="width:42px;height:42px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                <svg style="width:21px;height:21px;color:#A78BFA;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
             <div>
-                <h2 style="font-size: 1rem; font-weight: 600;">Formulir Pengajuan Cuti</h2>
-                <p style="font-size: 0.75rem; color: #64748b;">Isi data cuti dengan lengkap dan benar</p>
+                <h2 style="font-size:1rem;font-weight:700;color:var(--t1);">Formulir Pengajuan Cuti</h2>
+                <p style="font-size:0.74rem;color:var(--t4);margin-top:0.1rem;">Isi semua data dengan lengkap dan benar</p>
             </div>
         </div>
 
@@ -124,14 +143,29 @@
             {{-- Attachment --}}
             <div class="form-group">
                 <label class="form-label">Lampiran Dokumen</label>
-                <div style="border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; padding: 1.5rem; text-align: center; cursor: pointer; transition: all 0.2s;"
-                     onmouseover="this.style.borderColor='rgba(99,102,241,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
-                    <input type="file" name="attachment" id="attachment" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" @change="previewFile">
-                    <label for="attachment" style="cursor: pointer;">
-                        <svg style="width: 32px; height: 32px; color: #475569; margin: 0 auto 0.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                        <div style="font-size: 0.8rem; color: #64748b;">Klik untuk upload atau drag &amp; drop</div>
-                        <div style="font-size: 0.7rem; color: #475569; margin-top: 0.25rem;">PDF, JPG, PNG (maks. 2MB)</div>
-                        <div x-show="fileName" x-text="fileName" style="margin-top: 0.5rem; font-size: 0.8rem; color: #a78bfa;"></div>
+                <div id="drop-zone"
+                     style="border:2px dashed var(--border-soft);border-radius:14px;padding:2rem 1.5rem;text-align:center;cursor:pointer;transition:all 0.25s ease;background:var(--bg-elevated);"
+                     onmouseover="this.style.borderColor='var(--em)';this.style.background='var(--em-ghost)';this.style.boxShadow='0 0 20px var(--em-glow)';"
+                     onmouseout="this.style.borderColor='var(--border-soft)';this.style.background='var(--bg-elevated)';this.style.boxShadow='none';"
+                     ondragover="event.preventDefault();this.style.borderColor='var(--em)';this.style.background='var(--em-ghost)';"
+                     ondragleave="this.style.borderColor='var(--border-soft)';this.style.background='var(--bg-elevated)';"
+                     ondrop="handleDrop(event)">
+                    <input type="file" name="attachment" id="attachment" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" @change="previewFile">
+                    <label for="attachment" style="cursor:pointer;display:block;">
+                        <div x-show="!fileName">
+                            <svg style="width:36px;height:36px;color:var(--t5);margin:0 auto 0.6rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <div style="font-size:0.82rem;font-weight:600;color:var(--t3);">Klik untuk upload atau drag &amp; drop</div>
+                            <div style="font-size:0.7rem;color:var(--t4);margin-top:0.3rem;">PDF, JPG, PNG · Maksimal 2MB</div>
+                        </div>
+                        <div x-show="fileName" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
+                            <svg style="width:28px;height:28px;color:var(--em);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div style="font-size:0.82rem;font-weight:700;color:var(--em);" x-text="fileName"></div>
+                            <div style="font-size:0.68rem;color:var(--t4);">Klik untuk ganti file</div>
+                        </div>
                     </label>
                 </div>
                 @error('attachment')<div class="form-error">{{ $message }}</div>@enderror
@@ -183,6 +217,22 @@ function leaveForm() {
             if (file) this.fileName = file.name;
         }
     }
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    const dz = document.getElementById('drop-zone');
+    dz.style.borderColor = 'var(--border-soft)';
+    dz.style.background   = 'var(--bg-elevated)';
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const input = document.getElementById('attachment');
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    // Update Alpine component
+    const comp = Alpine.$data(document.querySelector('[x-data]'));
+    if (comp) comp.fileName = file.name;
 }
 </script>
 @endpush

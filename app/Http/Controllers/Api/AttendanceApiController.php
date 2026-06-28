@@ -67,7 +67,7 @@ class AttendanceApiController extends Controller
                 'email' => $user->email,
                 'nik' => $user->nik,
                 'role' => $user->role_label,
-                'role_name' => $user->roles->first()->name ?? 'karyawan',
+                'role_name' => optional($user->roles->first())->name ?? 'karyawan',
                 'division' => $user->division->name ?? '-',
                 'position' => $user->position->name ?? '-',
                 'shift' => $user->shift ? [
@@ -137,11 +137,12 @@ class AttendanceApiController extends Controller
                 'division' => $user->division->name ?? '-',
                 'position' => $user->position->name ?? '-',
                 'shift_id' => $user->shift_id,
-                'role_name' => $user->roles->first()->name ?? 'karyawan',
+                'role_name' => optional($user->roles->first())->name ?? 'karyawan',
                 'basic_salary' => $user->basic_salary,
                 'allowance' => $user->allowance,
                 'bpjs_deduction' => $user->bpjs_deduction,
                 'tax_deduction' => $user->tax_deduction,
+                'birth_date' => $user->birth_date ? $user->birth_date->format('Y-m-d') : null,
             ],
             'active_attendance' => $activeAttendance ? [
                 'id' => $activeAttendance->id,
@@ -305,7 +306,8 @@ class AttendanceApiController extends Controller
 
         if ($now->gt($deadline)) {
             $status      = 'late';
-            $lateMinutes = $now->diffInMinutes($scheduledStart);
+            // Bug fix #1: diffInMinutes must be from start to now (not reversed)
+            $lateMinutes = $scheduledStart->diffInMinutes($now);
         }
 
         // Create or update attendance record using user_id, date, and shift_id
@@ -329,10 +331,18 @@ class AttendanceApiController extends Controller
             ? "Absen masuk berhasil, namun Anda terlambat {$lateMinutes} menit."
             : 'Absen masuk berhasil! Selamat bekerja.';
 
+        // Bug fix #8: only expose safe fields — never return full model
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => $attendance
+            'data'    => [
+                'id'            => $attendance->id,
+                'date'          => $attendance->date,
+                'check_in_time' => $attendance->check_in_time,
+                'status'        => $attendance->status,
+                'late_minutes'  => $attendance->late_minutes,
+                'shift_name'    => $shift->name,
+            ]
         ]);
     }
 
@@ -460,8 +470,15 @@ class AttendanceApiController extends Controller
     {
         $user = Auth::user();
         
-        $monthStr = $request->get('month', Carbon::now()->format('Y-m'));
-        [$year, $month] = explode('-', $monthStr);
+        // Bug fix #3: support both ?month=6&year=2026 (Flutter) and ?month=2026-06 (legacy)
+        if ($request->has('year')) {
+            $month = (int) $request->get('month', Carbon::now()->month);
+            $year  = (int) $request->get('year',  Carbon::now()->year);
+            $monthStr = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
+        } else {
+            $monthStr = $request->get('month', Carbon::now()->format('Y-m'));
+            [$year, $month] = explode('-', $monthStr);
+        }
 
         $attendances = Attendance::with(['shift'])
             ->where('user_id', $user->id)
@@ -508,19 +525,15 @@ class AttendanceApiController extends Controller
     /**
      * Get secure time from public API with fallback to server time.
      */
+    /**
+     * Bug fix #4: removed external HTTP call to worldtimeapi.org.
+     * An external API call on every check-in blocks for up to 1.5s and fails if the
+     * external service is down. Server time with explicit timezone is reliable and fast.
+     * Ensure the server's system timezone is set correctly (e.g. `timedatectl set-timezone Asia/Jakarta`).
+     */
     private function getSecureTime(): Carbon
     {
-        try {
-            $client = new \GuzzleHttp\Client(['timeout' => 1.5]);
-            $response = $client->get('http://worldtimeapi.org/api/timezone/Asia/Jakarta');
-            $data = json_decode($response->getBody()->getContents(), true);
-            if (isset($data['datetime'])) {
-                return Carbon::parse($data['datetime'])->timezone('Asia/Jakarta');
-            }
-        } catch (\Exception $e) {
-            // Fallback to server time
-        }
-        return Carbon::now()->timezone('Asia/Jakarta');
+        return Carbon::now('Asia/Jakarta');
     }
 
     /**

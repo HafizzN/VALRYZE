@@ -90,7 +90,17 @@ class EmployeeApiController extends Controller
         $user = Auth::user();
         $start = Carbon::parse($request->start_date);
         $end = Carbon::parse($request->end_date);
-        $totalDays = $start->diffInDays($end) + 1;
+        // Bug fix #6: count only working days (Mon-Fri), not full calendar days
+        $totalDays = 0;
+        $current = $start->copy();
+        while ($current->lte($end)) {
+            if ($current->isWeekday()) {
+                $totalDays++;
+            }
+            $current->addDay();
+        }
+        // Fallback to at least 1 day even if entire range is weekend
+        $totalDays = max(1, $totalDays);
 
         $attachmentPath = null;
         if ($request->hasFile('attachment')) {

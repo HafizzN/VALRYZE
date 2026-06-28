@@ -169,28 +169,30 @@ class ManagerApiController extends Controller
             ->get();
 
         $today = Carbon::today();
+        $userIds = $teamUsers->pluck('id');
+
+        // Bug fix #2: load all related data in bulk (3 queries) instead of N*3 queries
+        $allAttendances  = Attendance::whereIn('user_id', $userIds)
+            ->whereDate('date', $today)->get()->keyBy('user_id');
+        $allLeaves       = LeaveRequest::whereIn('user_id', $userIds)
+            ->where('status', 'approved')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->get()->keyBy('user_id');
+        $allPermissions  = PermissionRequest::whereIn('user_id', $userIds)
+            ->where('status', 'approved')
+            ->whereDate('date', '<=', $today)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
+            })
+            ->get()->keyBy('user_id');
+
         $attendanceData = [];
 
         foreach ($teamUsers as $u) {
-            $att = Attendance::where('user_id', $u->id)
-                ->whereDate('date', $today)
-                ->first();
-
-            // Check if user is on leave today
-            $onLeave = LeaveRequest::where('user_id', $u->id)
-                ->where('status', 'approved')
-                ->whereDate('start_date', '<=', $today)
-                ->whereDate('end_date', '>=', $today)
-                ->first();
-
-            // Check if user has approved permission today
-            $onPermission = PermissionRequest::where('user_id', $u->id)
-                ->where('status', 'approved')
-                ->whereDate('date', '<=', $today)
-                ->where(function($q) use ($today) {
-                    $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
-                })
-                ->first();
+            $att          = $allAttendances->get($u->id);
+            $onLeave      = $allLeaves->get($u->id);
+            $onPermission = $allPermissions->get($u->id);
 
             $status = 'absent';
             $statusLabel = 'Belum Absen';
@@ -198,50 +200,50 @@ class ManagerApiController extends Controller
             if ($att) {
                 $status = $att->status;
                 $statusLabel = match($att->status) {
-                    'present' => 'Hadir',
-                    'late' => 'Terlambat',
-                    'absent' => 'Mangkir',
-                    'leave' => 'Cuti',
+                    'present'    => 'Hadir',
+                    'late'       => 'Terlambat',
+                    'absent'     => 'Mangkir',
+                    'leave'      => 'Cuti',
                     'permission' => 'Izin',
-                    'sick' => 'Sakit',
-                    default => ucfirst($att->status),
+                    'sick'       => 'Sakit',
+                    default      => ucfirst($att->status),
                 };
             } elseif ($onLeave) {
                 $status = 'leave';
                 $statusLabel = 'Cuti (' . match($onLeave->leave_type) {
                     'annual' => 'Tahunan',
-                    'sick' => 'Sakit',
-                    default => 'Khusus',
+                    'sick'   => 'Sakit',
+                    default  => 'Khusus',
                 } . ')';
             } elseif ($onPermission) {
                 $status = 'permission';
                 $statusLabel = 'Izin (' . match($onPermission->permission_type) {
-                    'sick' => 'Sakit',
-                    'family' => 'Keperluan Keluarga',
+                    'sick'       => 'Sakit',
+                    'family'     => 'Keperluan Keluarga',
                     'field_duty' => 'Dinas Luar',
-                    'personal' => 'Pribadi',
-                    default => 'Lainnya',
+                    'personal'   => 'Pribadi',
+                    default      => 'Lainnya',
                 } . ')';
             }
 
             $attendanceData[] = [
-                'user_id' => $u->id,
-                'name' => $u->name,
-                'photo_url' => $u->photo_url,
-                'position' => $u->position->name ?? '-',
-                'status' => $status,
-                'status_label' => $statusLabel,
-                'check_in' => $att && $att->check_in_time ? Carbon::parse($att->check_in_time)->format('H:i') : null,
-                'check_out' => $att && $att->check_out_time ? Carbon::parse($att->check_out_time)->format('H:i') : null,
-                'check_in_photo' => $att && $att->check_in_photo ? asset('storage/' . $att->check_in_photo) : null,
-                'check_out_photo' => $att && $att->check_out_photo ? asset('storage/' . $att->check_out_photo) : null,
-                'check_in_address' => $att ? $att->check_in_address : null,
+                'user_id'          => $u->id,
+                'name'             => $u->name,
+                'photo_url'        => $u->photo_url,
+                'position'         => $u->position->name ?? '-',
+                'status'           => $status,
+                'status_label'     => $statusLabel,
+                'check_in'         => $att && $att->check_in_time  ? Carbon::parse($att->check_in_time)->format('H:i')  : null,
+                'check_out'        => $att && $att->check_out_time ? Carbon::parse($att->check_out_time)->format('H:i') : null,
+                'check_in_photo'   => $att && $att->check_in_photo  ? asset('storage/' . $att->check_in_photo)  : null,
+                'check_out_photo'  => $att && $att->check_out_photo ? asset('storage/' . $att->check_out_photo) : null,
+                'check_in_address'  => $att ? $att->check_in_address  : null,
                 'check_out_address' => $att ? $att->check_out_address : null,
             ];
         }
 
         return response()->json([
-            'success' => true,
+            'success'    => true,
             'attendance' => $attendanceData
         ]);
     }
@@ -385,6 +387,14 @@ class ManagerApiController extends Controller
                 'success' => false,
                 'message' => 'Tipe pengajuan tidak valid.'
             ], 400);
+        }
+
+        // Bug fix #5: Guard against IDOR — reject if already processed
+        if ($item->status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pengajuan ini sudah diproses sebelumnya (status saat ini: ' . $item->status . ').'
+            ], 409);
         }
 
         // Verify request belongs to someone in manager's division

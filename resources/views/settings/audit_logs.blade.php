@@ -2,56 +2,54 @@
 
 @section('title', 'Jejak Audit Sistem')
 @section('page-title', 'Jejak Audit')
-@section('breadcrumb', 'Pengaturan / Jejak Audit')
+@section('breadcrumb', 'Pengaturan › Jejak Audit')
 
 @section('content')
-<div class="space-y-6" x-data="auditLogApp()" x-init="selectedLog = null; modalOpen = false">
-    <!-- Filters & Search -->
+<div class="space-y-5 animate-fadeSlideIn" x-data="auditLogApp()" x-init="selectedLog = null; modalOpen = false">
+    {{-- Filters & Search --}}
     <div class="card">
         <form method="GET" action="{{ route('settings.audit-logs') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div class="form-group mb-0">
+            <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" for="search">Cari Aktivitas</label>
                 <input type="text" name="search" id="search" class="form-control" placeholder="Cari nama admin atau modul..." value="{{ request('search') }}">
             </div>
 
-            <div class="form-group mb-0">
+            <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" for="action">Aksi</label>
                 <select name="action" id="action" class="form-control">
                     <option value="">Semua Aksi</option>
-                    <option value="create" {{ request('action') == 'create' ? 'selected' : '' }}>Create (Tambah)</option>
-                    <option value="update" {{ request('action') == 'update' ? 'selected' : '' }}>Update (Ubah)</option>
-                    <option value="delete" {{ request('action') == 'delete' ? 'selected' : '' }}>Delete (Hapus)</option>
+                    <option value="create" {{ request('action') == 'create' ? 'selected' : '' }}>Tambah (Create)</option>
+                    <option value="update" {{ request('action') == 'update' ? 'selected' : '' }}>Ubah (Update)</option>
+                    <option value="delete" {{ request('action') == 'delete' ? 'selected' : '' }}>Hapus (Delete)</option>
                 </select>
             </div>
 
-            <div class="form-group mb-0">
+            <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" for="model_type">Modul</label>
                 <select name="model_type" id="model_type" class="form-control">
                     <option value="">Semua Modul</option>
-                    <option value="User" {{ request('model_type') == 'User' ? 'selected' : '' }}>Karyawan</option>
-                    <option value="Division" {{ request('model_type') == 'Division' ? 'selected' : '' }}>Divisi</option>
-                    <option value="Position" {{ request('model_type') == 'Position' ? 'selected' : '' }}>Jabatan</option>
-                    <option value="Shift" {{ request('model_type') == 'Shift' ? 'selected' : '' }}>Shift Kerja</option>
-                    <option value="OfficeLocation" {{ request('model_type') == 'OfficeLocation' ? 'selected' : '' }}>Lokasi GPS</option>
-                    <option value="System" {{ request('model_type') == 'System' ? 'selected' : '' }}>Sistem (Otomatis)</option>
+                    <option value="User"           {{ request('model_type') == 'User' ? 'selected' : '' }}>👥 Karyawan</option>
+                    <option value="Division"       {{ request('model_type') == 'Division' ? 'selected' : '' }}>🏢 Divisi</option>
+                    <option value="Position"       {{ request('model_type') == 'Position' ? 'selected' : '' }}>👔 Jabatan</option>
+                    <option value="Shift"          {{ request('model_type') == 'Shift' ? 'selected' : '' }}>⏱ Shift Kerja</option>
+                    <option value="OfficeLocation" {{ request('model_type') == 'OfficeLocation' ? 'selected' : '' }}>🗺 Lokasi GPS</option>
+                    <option value="System"         {{ request('model_type') == 'System' ? 'selected' : '' }}>⚙️ Sistem (Otomatis)</option>
                 </select>
             </div>
 
-            <div class="flex gap-2">
+            <div style="display:flex;gap:0.5rem;">
                 <button type="submit" class="btn btn-primary flex-1 justify-center">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     Cari
                 </button>
                 @if(request()->anyFilled(['search', 'action', 'model_type']))
-                    <a href="{{ route('settings.audit-logs') }}" class="btn btn-secondary justify-center">
-                        Reset
-                    </a>
+                    <a href="{{ route('settings.audit-logs') }}" class="btn btn-secondary justify-center">Reset</a>
                 @endif
             </div>
         </form>
     </div>
 
-    <!-- Logs Table -->
+    {{-- Logs Table --}}
     <div class="card">
         <div class="table-container">
             <table>
@@ -59,8 +57,8 @@
                     <tr>
                         <th style="width: 180px;">Waktu Kejadian</th>
                         <th>Administrator</th>
-                        <th style="width: 120px;">Aksi</th>
-                        <th style="width: 180px;">Modul</th>
+                        <th style="width: 120px; text-align:center;">Aksi</th>
+                        <th>Modul</th>
                         <th style="width: 100px;">Data ID</th>
                         <th class="text-right" style="width: 120px;">Detail</th>
                     </tr>
@@ -68,25 +66,25 @@
                 <tbody>
                     @forelse($logs as $log)
                         <tr>
-                            <td class="font-mono text-xs text-slate-600">
-                                {{ $log->created_at->timezone('Asia/Jakarta')->format('d M Y H:i:s') }} WIB
+                            <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--t4);">
+                                {{ $log->created_at->timezone('Asia/Jakarta')->translatedFormat('d M Y, H:i:s') }} WIB
                             </td>
                             <td>
-                                <div class="flex items-center gap-2">
-                                    <div class="avatar" style="width: 28px; height: 28px; font-size: 0.6rem; overflow: hidden;">
+                                <div style="display:flex;align-items:center;gap:0.5rem;">
+                                    <div class="avatar" style="width:28px;height:28px;font-size:0.6rem;overflow:hidden;flex-shrink:0;">
                                         @if($log->user?->photo)
-                                            <img src="{{ $log->user->photo_url }}" alt="{{ $log->user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                            <img src="{{ $log->user->photo_url }}" style="width:100%;height:100%;object-fit:cover;">
                                         @else
-                                            {{ $log->user ? $log->user->initials : 'AD' }}
+                                            {{ $log->user ? $log->user->initials : 'SYS' }}
                                         @endif
                                     </div>
                                     <div>
-                                        <div class="font-semibold text-slate-800">{{ $log->user ? $log->user->name : 'System Admin' }}</div>
-                                        <div class="text-[10px] text-slate-500">{{ $log->user ? $log->user->email : 'admin@portal.com' }}</div>
+                                        <div style="font-size:0.8rem;font-weight:700;color:var(--t1);">{{ $log->user ? $log->user->name : 'Sistem Otomatis' }}</div>
+                                        <div style="font-size:0.65rem;color:var(--t4);">{{ $log->user ? $log->user->email : 'system@valryze.com' }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td style="text-align:center;">
                                 @php
                                     $badge = match($log->action) {
                                         'create' => 'badge-success',
@@ -101,39 +99,40 @@
                                         default => strtoupper($log->action)
                                     };
                                 @endphp
-                                <span class="badge {{ $badge }}">{{ $label }}</span>
+                                <span class="badge {{ $badge }}" style="font-size:0.65rem;">{{ $label }}</span>
                             </td>
-                            <td class="font-semibold text-slate-700">
+                            <td>
                                 @php
                                     $module = match($log->model_type) {
-                                        'Division' => 'Divisi',
-                                        'Position' => 'Jabatan',
-                                        'Shift' => 'Shift Kerja',
-                                        'OfficeLocation' => 'Lokasi Kantor',
-                                        'User' => 'Karyawan',
-                                        'System' => 'Sistem (Otomatis)',
+                                        'Division' => '🏢 Divisi',
+                                        'Position' => '👔 Jabatan',
+                                        'Shift' => '⏱ Shift Kerja',
+                                        'OfficeLocation' => '🗺 Lokasi Kantor',
+                                        'User' => '👥 Karyawan',
+                                        'System' => '⚙️ Sistem',
                                         default => $log->model_type
                                     };
                                 @endphp
-                                {{ $module }}
+                                <span style="font-weight:700;color:var(--t2);font-size:0.8rem;">{{ $module }}</span>
                             </td>
-                            <td class="font-mono text-xs text-slate-600">
+                            <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--t3);">
                                 #{{ $log->model_id ?? '-' }}
                             </td>
-                            <td class="text-right">
+                            <td style="text-align:right;">
                                 <button 
                                     @click="selectedLog = {{ json_encode($log) }}; modalOpen = true" 
                                     class="btn btn-secondary btn-sm"
-                                    style="padding: 0.25rem 0.5rem;"
+                                    style="padding:0.25rem 0.55rem;font-size:0.7rem;"
                                 >
-                                    Lihat Detail
+                                    Buka
                                 </button>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-8 text-slate-500">
-                                Tidak ada log aktivitas terdeteksi yang sesuai kriteria.
+                            <td colspan="6" style="text-align:center;padding:3.5rem;color:var(--t4);">
+                                <div style="font-size:2rem;margin-bottom:0.75rem;">📋</div>
+                                <div style="font-weight:700;color:var(--t3);">Tidak ada log aktivitas terdeteksi</div>
                             </td>
                         </tr>
                     @endforelse
@@ -142,34 +141,34 @@
         </div>
 
         @if(isset($logs) && $logs instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator && $logs->hasPages())
-            <div class="mt-4">
+            <div style="margin-top:1.5rem;">
                 {{ $logs->links() }}
             </div>
         @endif
     </div>
 
-    <!-- Modal for details -->
-    <div x-show="modalOpen" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" x-cloak>
-        <div @click.away="modalOpen = false" class="card w-full max-w-2xl max-h-[85vh] flex flex-col p-6 shadow-2xl" style="border-color: rgba(255,255,255,0.08); background: var(--card-bg);">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100" style="border-bottom-color: var(--border-color);">
+    {{-- Modal for details (Alpine.js) --}}
+    <div x-show="modalOpen" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" x-cloak x-transition>
+        <div @click.away="modalOpen = false" class="card w-full max-w-2xl max-h-[85vh] flex flex-col p-6 shadow-2xl" style="border-color:rgba(255,255,255,0.08);">
+            <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-dim);padding-bottom:0.75rem;">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-800" style="color: var(--text-main);">Detail Perubahan Aktivitas</h3>
-                    <p class="text-xs text-slate-500">
-                        Oleh <span class="font-semibold text-slate-700" style="color: var(--text-main);" x-text="selectedLog?.user?.name || 'System Admin'"></span> pada <span x-text="selectedLog ? new Date(selectedLog.created_at).toLocaleString('id-ID') : ''"></span>
+                    <h3 style="font-size:1rem;font-weight:900;color:var(--t1);">Detail Perubahan Aktivitas</h3>
+                    <p style="font-size:0.7rem;color:var(--t4);margin-top:0.15rem;">
+                        Oleh <span style="font-weight:700;color:var(--t2);" x-text="selectedLog?.user?.name || 'Sistem Otomatis'"></span> pada <span x-text="selectedLog ? new Date(selectedLog.created_at).toLocaleString('id-ID') : ''"></span>
                     </p>
                 </div>
-                <button @click="modalOpen = false" class="text-slate-400 hover:text-slate-600 p-1">
+                <button @click="modalOpen = false" style="background:transparent;border:none;cursor:pointer;color:var(--t4);" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--t4)'">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
-            <!-- Detail Contents -->
+            {{-- Detail Contents --}}
             <div class="flex-1 overflow-y-auto py-4 space-y-4" style="scrollbar-width: thin;">
-                <!-- Action & Module Row -->
-                <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100" style="background: rgba(0,0,0,0.02); border-color: var(--border-color);">
+                {{-- Action info block --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:0.75rem 1rem;background:var(--bg-elevated);border:1px solid var(--border-soft);border-radius:12px;">
                     <div>
-                        <div class="text-[10px] text-slate-500 font-bold uppercase">Aksi</div>
-                        <div class="mt-1">
+                        <div style="font-size:0.6rem;font-weight:800;color:var(--t4);text-transform:uppercase;letter-spacing:0.04em;">Aksi</div>
+                        <div style="margin-top:0.25rem;">
                             <span class="badge" 
                                   :class="{
                                       'badge-success': selectedLog?.action === 'create',
@@ -180,19 +179,19 @@
                         </div>
                     </div>
                     <div>
-                        <div class="text-[10px] text-slate-500 font-bold uppercase">Modul / ID Data</div>
-                        <div class="mt-1 text-sm font-semibold text-slate-700" style="color: var(--text-main);">
+                        <div style="font-size:0.6rem;font-weight:800;color:var(--t4);text-transform:uppercase;letter-spacing:0.04em;">Modul / ID Data</div>
+                        <div style="margin-top:0.25rem;font-size:0.8rem;font-weight:700;color:var(--t1);">
                             <span x-text="selectedLog?.model_type || ''"></span>
-                            <span class="text-slate-400">#</span><span x-text="selectedLog?.model_id || ''"></span>
+                            <span style="color:var(--em);">#</span><span x-text="selectedLog?.model_id || ''"></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Changes Detail -->
+                {{-- Changes Details Table --}}
                 <div>
-                    <div class="text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Rincian Perubahan</div>
+                    <div style="font-size:0.65rem;font-weight:800;color:var(--t5);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;">Rincian Parameter</div>
                     
-                    <!-- If Action is Create or Delete (shows flat key-values) -->
+                    {{-- Create / Delete view --}}
                     <template x-if="selectedLog?.action !== 'update'">
                         <div class="table-container">
                             <table>
@@ -206,8 +205,8 @@
                                     <template x-if="selectedLog?.details">
                                         <template x-for="[key, val] in Object.entries(selectedLog.details)">
                                             <tr>
-                                                <td class="font-mono text-xs font-semibold text-slate-600" x-text="formatKey(key)"></td>
-                                                <td class="text-xs text-slate-800" style="color: var(--text-main);" x-text="formatVal(key, val)"></td>
+                                                <td style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--t3);" x-text="formatKey(key)"></td>
+                                                <td style="font-size:0.75rem;color:var(--t2);" x-text="formatVal(key, val)"></td>
                                             </tr>
                                         </template>
                                     </template>
@@ -216,7 +215,7 @@
                         </div>
                     </template>
 
-                    <!-- If Action is Update (shows Old vs New side-by-side comparison) -->
+                    {{-- Update Old vs New view --}}
                     <template x-if="selectedLog?.action === 'update'">
                         <div class="table-container">
                             <table>
@@ -230,13 +229,13 @@
                                 <tbody>
                                     <template x-if="selectedLog?.details?.new">
                                         <template x-for="[key, newVal] in Object.entries(selectedLog.details.new)">
-                                            <tr :style="JSON.stringify(selectedLog?.details?.old?.[key]) !== JSON.stringify(newVal) ? 'background-color: rgba(245,158,11,0.05);' : ''">
-                                                <td class="font-mono text-xs font-semibold text-slate-600" x-text="formatKey(key)"></td>
-                                                <td class="text-xs font-mono" 
-                                                    :style="JSON.stringify(selectedLog?.details?.old?.[key]) !== JSON.stringify(newVal) ? 'color: var(--danger); text-decoration: line-through; font-weight: 600;' : 'color: var(--text-muted);'"
+                                            <tr :style="JSON.stringify(selectedLog?.details?.old?.[key]) !== JSON.stringify(newVal) ? 'background: rgba(245,158,11,0.04);' : ''">
+                                                <td style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--t3);" x-text="formatKey(key)"></td>
+                                                <td style="font-size:0.72rem;font-family:'JetBrains Mono',monospace;" 
+                                                    :style="JSON.stringify(selectedLog?.details?.old?.[key]) !== JSON.stringify(newVal) ? 'color: var(--danger); text-decoration: line-through; font-weight:700;' : 'color: var(--t4);'"
                                                     x-text="formatVal(key, selectedLog?.details?.old?.[key])"></td>
-                                                <td class="text-xs font-mono"
-                                                    :style="JSON.stringify(selectedLog?.details?.old?.[key]) !== JSON.stringify(newVal) ? 'color: var(--success); font-weight: 700; background-color: rgba(22,163,74,0.1); padding: 0.1rem 0.25rem; border-radius: 4px;' : 'color: var(--text-main);'"
+                                                <td style="font-size:0.72rem;font-family:'JetBrains Mono',monospace;"
+                                                    :style="JSON.stringify(selectedLog?.details?.old?.[key]) !== JSON.stringify(newVal) ? 'color: var(--success); font-weight:800; background: rgba(16,185,129,0.08); padding:0.15rem 0.35rem; border-radius:6px;' : 'color: var(--t2);'"
                                                     x-text="formatVal(key, newVal)"></td>
                                             </tr>
                                         </template>
@@ -248,7 +247,7 @@
                 </div>
             </div>
 
-            <div class="pt-4 border-t border-slate-100 flex justify-end" style="border-top-color: var(--border-color);">
+            <div style="border-top:1px solid var(--border-dim);padding-top:0.85rem;display:flex;justify-content:flex-end;">
                 <button type="button" @click="modalOpen = false" class="btn btn-secondary">Tutup</button>
             </div>
         </div>

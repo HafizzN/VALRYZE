@@ -2,27 +2,25 @@
 
 @section('title', 'Master Data Lokasi GPS')
 @section('page-title', 'Lokasi Kantor')
-@section('breadcrumb', 'Master Data / Lokasi GPS')
+@section('breadcrumb', 'Master Data › Lokasi GPS')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<div class="space-y-5 animate-fadeSlideIn">
+    {{-- Header --}}
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:0.25rem;">
         <div>
-            <h2 class="text-xl font-bold text-slate-800">Manajemen Lokasi Geofencing</h2>
-            <p class="text-xs text-slate-500">Kelola titik koordinat kantor dan radius presensi GPS (Geofencing) untuk absen masuk/pulang</p>
+            <h2 style="font-size:1.1rem;font-weight:800;color:var(--t1);letter-spacing:-0.01em;">Manajemen Lokasi Geofencing</h2>
+            <p style="font-size:0.78rem;color:var(--t4);margin-top:0.25rem;">Kelola titik koordinat kantor dan radius presensi GPS (Geofencing) untuk absen masuk/pulang</p>
         </div>
-        <div>
-            <a href="{{ route('master.locations.create') }}" class="btn btn-primary">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Tambah Lokasi
-            </a>
-        </div>
+        <a href="{{ route('master.locations.create') }}" class="btn btn-primary">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Tambah Lokasi
+        </a>
     </div>
 
-    <!-- Locations Table Card -->
+    {{-- Table Card --}}
     <div class="card">
         <div class="table-container">
             <table>
@@ -33,25 +31,31 @@
                         <th>Latitude</th>
                         <th>Longitude</th>
                         <th>Radius Geofencing</th>
-                        <th>Status</th>
-                        <th class="text-right" style="width: 200px">Aksi</th>
+                        <th style="text-align:center;">Status</th>
+                        <th style="text-align:right;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($locations as $location)
                         <tr>
-                            <td class="font-bold text-slate-800">
-                                {{ $location->name }}
+                            <td>
+                                <div style="font-weight:800;color:var(--t1);font-size:0.82rem;">{{ $location->name }}</div>
                             </td>
-                            <td class="text-xs text-slate-600 max-w-xs truncate">
-                                {{ $location->address ?? '-' }}
+                            <td style="font-size:0.75rem;color:var(--t3);max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                {{ $location->address ?? '—' }}
                             </td>
-                            <td class="font-mono text-xs text-slate-700">{{ number_format($location->latitude, 6) }}</td>
-                            <td class="font-mono text-xs text-slate-700">{{ number_format($location->longitude, 6) }}</td>
-                            <td class="font-mono text-xs font-semibold text-emerald-700">
-                                {{ $location->radius_meters }} meter
+                            <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--t4);">
+                                {{ number_format($location->latitude, 6) }}
+                            </td>
+                            <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--t4);">
+                                {{ number_format($location->longitude, 6) }}
                             </td>
                             <td>
+                                <span class="badge badge-success" style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:700;">
+                                    {{ $location->radius_meters }} meter
+                                </span>
+                            </td>
+                            <td style="text-align:center;">
                                 @if($location->is_active ?? true)
                                     <span class="badge badge-success">Aktif</span>
                                 @else
@@ -59,14 +63,14 @@
                                 @endif
                             </td>
                             <td>
-                                <div class="flex justify-end gap-2">
-                                    <a href="{{ route('master.locations.edit', $location->id) }}" class="btn btn-secondary btn-sm text-emerald-700">
+                                <div style="display:flex;justify-content:flex-end;gap:0.4rem;">
+                                    <a href="{{ route('master.locations.edit', $location->id) }}" class="btn btn-secondary btn-sm" style="color:var(--em);">
                                         Edit
                                     </a>
                                     <form action="{{ route('master.locations.destroy', $location->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus lokasi ini?')" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm text-xs">
+                                        <button type="submit" class="btn btn-danger btn-sm">
                                             Hapus
                                         </button>
                                     </form>
@@ -75,8 +79,9 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-8 text-slate-500">
-                                Belum ada lokasi kantor terdaftar.
+                            <td colspan="7" style="text-align:center;padding:3.5rem;color:var(--t4);">
+                                <div style="font-size:2rem;margin-bottom:0.75rem;">🗺</div>
+                                <div style="font-weight:700;color:var(--t3);">Belum ada lokasi kantor terdaftar</div>
                             </td>
                         </tr>
                     @endforelse
@@ -85,7 +90,7 @@
         </div>
 
         @if(isset($locations) && $locations instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator && $locations->hasPages())
-            <div class="mt-4">
+            <div style="margin-top:1.5rem;">
                 {{ $locations->links() }}
             </div>
         @endif

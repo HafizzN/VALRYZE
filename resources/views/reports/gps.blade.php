@@ -5,34 +5,44 @@
 @section('breadcrumb', 'Laporan / GPS Map')
 
 @push('styles')
-<!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <style>
     .leaflet-popup-content-wrapper {
-        border-radius: 12px;
-        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.08);
-        border: 1px solid var(--border-color);
-        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.7);
+        border: 1px solid rgba(255,255,255,0.08);
+        background: #132135;
+        padding: 0;
+        overflow: hidden;
     }
-    .leaflet-popup-tip {
-        background: #ffffff;
-    }
-    /* Set map container background to match clean light theme */
+    .leaflet-popup-tip { background: #132135; }
+    .leaflet-popup-close-button { color: #94A3B8 !important; font-size:16px !important; }
     #map {
-        background: #f1f5f9;
-        border: 1px solid var(--border-color);
+        background: #07101A;
+        border: 1px solid var(--border-soft);
+        border-radius: 16px;
+    }
+    .gps-side-card {
+        padding: 0.75rem; background: var(--bg-elevated);
+        border: 1px solid var(--border-soft); border-radius: 12px;
+        cursor: pointer; transition: all 0.2s ease;
+    }
+    .gps-side-card:hover {
+        background: var(--bg-hover); border-color: var(--em-border); transform: translateX(3px);
     }
 </style>
 @endpush
 
 @section('content')
-<div class="space-y-6">
-    <!-- Header -->
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-        <div>
-            <h2 style="font-size: 1rem; font-weight: 600; color: var(--text-main);">Visualisasi Koordinat Presensi</h2>
-            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem;">Pantau lokasi check-in harian karyawan secara visual di peta interaktif</p>
-        </div>
+<div class="space-y-5">
+    {{-- Header --}}
+    <div style="margin-bottom:0.5rem;">
+        <h2 style="font-size:1.1rem;font-weight:800;color:var(--t1);letter-spacing:-0.01em;">🗺 Visualisasi GPS Presensi</h2>
+        <p style="font-size:0.78rem;color:var(--t4);margin-top:0.25rem;">
+            Titik check-in &middot;
+            <strong style="color:var(--t2);">{{ \Carbon\Carbon::parse($date)->translatedFormat('l, d F Y') }}</strong>
+            &middot; <span class="badge badge-success" style="font-size:0.65rem;">{{ $attendances->count() }} titik</span>
+        </p>
     </div>
 
     <!-- Filter Card -->
@@ -148,9 +158,9 @@
         // Initialize Leaflet Map
         const map = L.map('map').setView(defaultCenter, defaultZoom);
 
-        // Add CartoDB Positron (clean, premium light map)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        // Dark map tile (CartoDB Dark Matter) — matches VALRYZE design
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
             subdomains: 'abcd',
             maxZoom: 20
         }).addTo(map);
@@ -169,13 +179,13 @@
                 fillOpacity: 0.85
             }).addTo(map);
 
-            // Bind premium styled popup
+            // Dark popup matching VALRYZE design system
             const content = `
-                <div style="color: #1f2937; font-family: 'Plus Jakarta Sans', sans-serif; min-width: 150px; font-size: 11px;">
-                    <strong style="font-size: 13px; color: #111827; display: block; margin-bottom: 2px;">${loc.name}</strong>
-                    <span style="color: #64748b; display: block; margin-bottom: 2px;">NIK: ${loc.nik}</span>
-                    <span style="color: #64748b; display: block; margin-bottom: 4px;">Check-in: <strong style="color: #16a34a;">${loc.time} WIB</strong></span>
-                    <span style="display: inline-block; padding: 1px 6px; background: #dcfce7; color: #15803d; border-radius: 10px; font-weight: bold; text-transform: uppercase; font-size: 9px;">${loc.status}</span>
+                <div style="padding:12px 14px;font-family:'Plus Jakarta Sans',sans-serif;min-width:170px;">
+                    <div style="font-size:13px;font-weight:800;color:#F1F5F9;margin-bottom:3px;">${loc.name}</div>
+                    <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:#64748B;margin-bottom:6px;">NIK: ${loc.nik}</div>
+                    <div style="font-size:12px;font-weight:800;color:#10B981;font-family:'JetBrains Mono',monospace;">${loc.time} WIB</div>
+                    <span style="display:inline-block;margin-top:6px;padding:2px 8px;background:rgba(16,185,129,0.15);color:#34D399;border-radius:20px;font-weight:700;font-size:9px;letter-spacing:0.05em;border:1px solid rgba(16,185,129,0.3);">${loc.status.toUpperCase()}</span>
                 </div>
             `;
             marker.bindPopup(content);

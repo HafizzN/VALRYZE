@@ -7,10 +7,10 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+    <div style="display:flex;flex-direction:column;gap:1rem;" class="xl:flex-row xl:items-center xl:justify-between">
         <div>
-            <h2 class="text-xl font-bold text-slate-850 dark:text-slate-100">Kalender Kerja & Kehadiran</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Tinjauan hari libur nasional, akhir pekan, dan rekap absensi bulanan secara visual</p>
+            <h2 style="font-size:1.1rem;font-weight:800;color:var(--t1);letter-spacing:-0.01em;">Kalender Kerja & Kehadiran</h2>
+            <p style="font-size:0.78rem;color:var(--t4);margin-top:0.25rem;">Tinjauan hari libur nasional, akhir pekan, dan rekap absensi bulanan secara visual</p>
         </div>
         
         <!-- Legend Summary (Premium Pill-based Legend with bulletproof inline styles) -->
@@ -40,21 +40,23 @@
     </div>
 
     <!-- Filters & Selection (Sleek Glassmorphic Form with bulletproof label colors) -->
-    <div class="card bg-slate-900/10 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/80 backdrop-blur-md rounded-2xl p-5 shadow-sm">
+    <div class="card">
         <form method="GET" action="{{ route('calendar.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <!-- Month Picker -->
             <div class="form-group mb-0">
-                <label class="form-label text-[11px] uppercase tracking-wider font-bold" style="color: var(--text-muted);" for="month">Pilih Bulan</label>
-                <input type="month" name="month" id="month" class="form-control mt-1 border-slate-300 dark:border-slate-800 text-xs py-2" style="color: var(--text-main); background-color: var(--card-bg);" value="{{ $month }}" onchange="this.form.submit()">
+                <label class="form-label" for="month">Pilih Bulan</label>
+                <input type="month" name="month" id="month" class="form-control"
+                    style="font-family:'JetBrains Mono',monospace;"
+                    value="{{ $month }}" onchange="this.form.submit()">
             </div>
 
-            <!-- Employee Dropdown (Admins / Managers with high-contrast text fix) -->
+            <!-- Employee Dropdown (Admins / Managers) -->
             @if($canFilter)
             <div class="form-group mb-0">
-                <label class="form-label text-[11px] uppercase tracking-wider font-bold" style="color: var(--text-muted);" for="user_id">Pilih Karyawan</label>
-                <select name="user_id" id="user_id" class="form-control mt-1 border-slate-300 dark:border-slate-800 text-xs py-2" style="color: var(--text-main); background-color: var(--card-bg);" onchange="this.form.submit()">
+                <label class="form-label" for="user_id">Pilih Karyawan</label>
+                <select name="user_id" id="user_id" class="form-control" onchange="this.form.submit()">
                     @foreach($employees as $emp)
-                        <option value="{{ $emp->id }}" {{ $selectedUser->id == $emp->id ? 'selected' : '' }} style="color: var(--text-main); background-color: var(--card-bg);">
+                        <option value="{{ $emp->id }}" {{ $selectedUser->id == $emp->id ? 'selected' : '' }}>
                             {{ $emp->name }} ({{ $emp->nik }})
                         </option>
                     @endforeach
@@ -62,18 +64,18 @@
             </div>
             @endif
 
-            <div class="md:col-span-2 flex justify-end">
-                <div class="text-right border-l border-slate-200 dark:border-slate-800 pl-4">
-                    <span class="text-[10px] uppercase tracking-wider font-bold" style="color: var(--text-muted);">Menampilkan Kalender:</span>
-                    <div class="font-bold text-slate-800 dark:text-slate-100 text-sm mt-0.5">{{ $selectedUser->name }}</div>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold mt-1">{{ $selectedUser->role_label }}</span>
+            <div class="md:col-span-2" style="display:flex;justify-content:flex-end;">
+                <div style="text-align:right;border-left:1px solid var(--border-dim);padding-left:1rem;">
+                    <span style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:800;color:var(--t5);">Menampilkan Kalender:</span>
+                    <div style="font-weight:800;color:var(--t1);font-size:0.85rem;margin-top:0.2rem;">{{ $selectedUser->name }}</div>
+                    <span class="badge badge-success" style="margin-top:0.25rem;display:inline-block;">{{ $selectedUser->role_label }}</span>
                 </div>
             </div>
         </form>
     </div>
 
     <!-- Calendar Grid Card -->
-    <div class="card p-4 md:p-6 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm">
+    <div class="card">
         @php
             $carbonMonth = \Carbon\Carbon::parse($month . '-01');
             $daysInMonth = $carbonMonth->daysInMonth;
@@ -87,16 +89,16 @@
             $todayStr = today()->format('Y-m-d');
         @endphp
 
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-base md:text-lg font-bold text-slate-850 dark:text-slate-100 tracking-tight">{{ $monthName }}</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+            <h3 style="font-size:1rem;font-weight:900;color:var(--t1);letter-spacing:-0.02em;">{{ $monthName }}</h3>
             
             <!-- Navigation Buttons -->
-            <div class="flex gap-2">
-                <a href="{{ route('calendar.index', array_merge(request()->query(), ['month' => $carbonMonth->copy()->subMonth()->format('Y-m')])) }}" class="btn btn-secondary btn-sm rounded-xl py-1.5 px-3 hover:bg-slate-100 dark:hover:bg-slate-800" title="Bulan Sebelumnya">
+            <div style="display:flex;gap:0.5rem;">
+                <a href="{{ route('calendar.index', array_merge(request()->query(), ['month' => $carbonMonth->copy()->subMonth()->format('Y-m')])) }}" class="btn btn-secondary btn-sm" title="Bulan Sebelumnya">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                 </a>
-                <a href="{{ route('calendar.index', array_merge(request()->query(), ['month' => now()->format('Y-m')])) }}" class="btn btn-secondary btn-sm rounded-xl py-1.5 px-4 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 text-xs">Bulan Ini</a>
-                <a href="{{ route('calendar.index', array_merge(request()->query(), ['month' => $carbonMonth->copy()->addMonth()->format('Y-m')])) }}" class="btn btn-secondary btn-sm rounded-xl py-1.5 px-3 hover:bg-slate-100 dark:hover:bg-slate-800" title="Bulan Berikutnya">
+                <a href="{{ route('calendar.index', array_merge(request()->query(), ['month' => now()->format('Y-m')])) }}" class="btn btn-secondary btn-sm" style="font-weight:800;font-size:0.75rem;">Bulan Ini</a>
+                <a href="{{ route('calendar.index', array_merge(request()->query(), ['month' => $carbonMonth->copy()->addMonth()->format('Y-m')])) }}" class="btn btn-secondary btn-sm" title="Bulan Berikutnya">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </a>
             </div>
@@ -105,7 +107,7 @@
         <!-- Days of Week Header -->
         <div class="calendar-days-header">
             @foreach($daysOfWeek as $dayName)
-                <div class="{{ $dayName == 'Sabtu' || $dayName == 'Minggu' ? 'text-rose-500/90' : 'text-slate-400 dark:text-slate-500' }}">{{ $dayName }}</div>
+                <div style="color:{{ ($dayName == 'Sabtu' || $dayName == 'Minggu') ? '#f43f5e' : 'var(--t4)' }};">{{ $dayName }}</div>
             @endforeach
         </div>
 
@@ -149,13 +151,13 @@
                      data-date="{{ $dateStr }}">
                      
                     <!-- Date Number & Today Indicator -->
-                    <div class="flex items-start justify-between">
-                        <span class="text-sm font-extrabold font-mono {{ $isToday ? 'text-emerald-500' : ($isWeekend || $holiday ? 'text-rose-500' : 'text-slate-600 dark:text-slate-400') }}">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+                        <span style="font-size:0.8rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:{{ $isToday ? 'var(--em)' : (($isWeekend || $holiday) ? '#f43f5e' : 'var(--t3)') }};">
                             {{ sprintf('%02d', $day) }}
                         </span>
                         
                         @if($isToday)
-                            <span class="inline-flex items-center px-1.5 py-0.5 rounded-[4px] text-[8px] font-extrabold uppercase tracking-wide bg-emerald-500 text-white leading-none">TODAY</span>
+                            <span style="display:inline-flex;align-items:center;padding:0.1rem 0.35rem;border-radius:4px;font-size:0.55rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;background:var(--em);color:#fff;line-height:1;">TODAY</span>
                         @endif
                     </div>
 
@@ -516,13 +518,8 @@
     
     /* Beautiful subtle weekend styling */
     .calendar-day-card.is-weekend {
-        background: rgba(248, 250, 252, 0.4);
-        border-color: var(--border-color);
-    }
-    
-    .dark .calendar-day-card.is-weekend {
-        background: rgba(255, 255, 255, 0.015);
-        border-color: var(--border-color);
+        background: rgba(244, 63, 94, 0.03);
+        border-color: rgba(244, 63, 94, 0.12);
     }
     
     /* Muted tint for national holidays */
@@ -533,16 +530,11 @@
     
     /* Grid fillers for empty trailing/leading calendar days */
     .calendar-day-empty {
-        background: rgba(241, 245, 249, 0.2);
-        border: 1px dashed var(--border-color);
+        background: rgba(255, 255, 255, 0.01);
+        border: 1px dashed var(--border-dim);
         border-radius: 16px;
         min-height: 120px;
-        opacity: 0.4;
-    }
-    
-    .dark .calendar-day-empty {
-        background: rgba(255, 255, 255, 0.005);
-        border-color: var(--border-color);
+        opacity: 0.3;
     }
     
     /* Media responsiveness overrides */

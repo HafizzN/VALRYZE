@@ -2,91 +2,93 @@
 
 @section('title', 'Tambah Pengguna Baru')
 @section('page-title', 'Tambah Pengguna')
-@section('breadcrumb', 'Pengaturan / Manajemen User / Tambah')
+@section('breadcrumb', 'Pengaturan › Manajemen User › Tambah')
 
 @section('content')
-<div class="max-w-2xl mx-auto font-sans">
-    <div class="card bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-        <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-            <h3 class="text-sm font-bold text-slate-700">Form Pengguna Baru</h3>
-            <a href="{{ route('settings.users.index') }}" class="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1 transition-colors">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                Kembali
-            </a>
+<div class="max-w-2xl mx-auto space-y-5 animate-fadeSlideIn">
+    {{-- Header --}}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
+        <div>
+            <h2 style="font-size:1.1rem;font-weight:800;color:var(--t1);letter-spacing:-0.01em;">Tambah Pengguna Baru</h2>
+            <p style="font-size:0.78rem;color:var(--t4);margin-top:0.25rem;">Buat pengguna baru untuk akses ke sistem admin portal</p>
         </div>
+        <a href="{{ route('settings.users.index') }}" class="btn btn-secondary btn-sm">← Kembali</a>
+    </div>
 
-        <form action="{{ route('settings.users.store') }}" method="POST" class="space-y-4">
+    @if($errors->any())
+        <div class="alert alert-error">
+            <div class="flex-1">
+                <p style="font-weight:700;font-size:0.8rem;">Terjadi kesalahan input data:</p>
+                <ul style="padding-left:1rem;margin-top:0.25rem;">
+                    @foreach($errors->all() as $error)
+                        <li style="font-size:0.75rem;">{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
+    <div class="card">
+        <form action="{{ route('settings.users.store') }}" method="POST" style="display:flex;flex-direction:column;gap:1.25rem;">
             @csrf
 
             <!-- Name -->
-            <div class="space-y-1.5">
-                <label for="name" class="block text-xs font-bold text-slate-600">Nama Lengkap</label>
-                <input type="text" name="name" id="name" value="{{ old('name') }}" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Masukkan nama lengkap" required>
-                @error('name')
-                    <p class="text-[10px] text-red-500 mt-1">{{ $message }}</p>
-                @enderror
+            <div class="form-group">
+                <label class="form-label" for="name">Nama Lengkap <span style="color:var(--danger);">*</span></label>
+                <input type="text" name="name" id="name" value="{{ old('name') }}" class="form-control" placeholder="Masukkan nama lengkap" required>
+                @error('name')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
             <!-- Email -->
-            <div class="space-y-1.5">
-                <label for="email" class="block text-xs font-bold text-slate-600">Alamat Email</label>
-                <input type="email" name="email" id="email" value="{{ old('email') }}" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="name@company.com" required>
-                @error('email')
-                    <p class="text-[10px] text-red-500 mt-1">{{ $message }}</p>
-                @enderror
+            <div class="form-group">
+                <label class="form-label" for="email">Alamat Email <span style="color:var(--danger);">*</span></label>
+                <input type="email" name="email" id="email" value="{{ old('email') }}" class="form-control" placeholder="nama@perusahaan.com" required>
+                @error('email')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
             <!-- Role -->
-            <div class="space-y-1.5">
-                <label for="role" class="block text-xs font-bold text-slate-600">Tingkat Hak Akses (Role)</label>
-                <select name="role" id="role" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white" required>
+            <div class="form-group">
+                <label class="form-label" for="role">Tingkat Hak Akses (Role) <span style="color:var(--danger);">*</span></label>
+                <select name="role" id="role" class="form-control" required>
                     <option value="" disabled selected>Pilih Role</option>
                     @foreach($roles as $role)
                         <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>
                             @switch($role->name)
-                                @case('super_admin')
-                                    SUPER ADMIN
-                                    @break
-                                @case('hrd')
-                                    HRD
-                                    @break
-                                @case('manager')
-                                    MANAGER
-                                    @break
-                                @case('employee')
-                                    KARYAWAN
-                                    @break
-                                @default
-                                    {{ strtoupper($role->name) }}
+                                @case('super_admin') 🛡️ SUPER ADMIN @break
+                                @case('hrd')         💼 HRD @break
+                                @case('manager')     🎖️ MANAGER @break
+                                @case('employee')    👤 KARYAWAN @break
+                                @default             ⚙️ {{ strtoupper($role->name) }}
                             @endswitch
                         </option>
                     @endforeach
                 </select>
-                @error('role')
-                    <p class="text-[10px] text-red-500 mt-1">{{ $message }}</p>
-                @enderror
+                @error('role')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
             <!-- Password -->
-            <div class="space-y-1.5">
-                <label for="password" class="block text-xs font-bold text-slate-600">Kata Sandi (Password)</label>
-                <input type="password" name="password" id="password" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Minimal 8 karakter" required>
-                @error('password')
-                    <p class="text-[10px] text-red-500 mt-1">{{ $message }}</p>
-                @enderror
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label class="form-label" for="password">Kata Sandi <span style="color:var(--danger);">*</span></label>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Minimal 8 karakter" required>
+                    @error('password')<div class="form-error">{{ $message }}</div>@enderror
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label class="form-label" for="password_confirmation">Konfirmasi Kata Sandi <span style="color:var(--danger);">*</span></label>
+                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Ulangi kata sandi" required>
+                </div>
             </div>
 
-            <!-- Confirm Password -->
-            <div class="space-y-1.5">
-                <label for="password_confirmation" class="block text-xs font-bold text-slate-600">Konfirmasi Kata Sandi</label>
-                <input type="password" name="password_confirmation" id="password_confirmation" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="Ulangi kata sandi" required>
-            </div>
-
-            <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
-                <a href="{{ route('settings.users.index') }}" class="btn btn-secondary text-xs text-slate-600 bg-slate-100 hover:bg-slate-200 border-none rounded-xl px-4 py-2">Batal</a>
-                <button type="submit" class="btn btn-primary text-xs bg-indigo-600 hover:bg-indigo-700 border-none rounded-xl px-4 py-2">Simpan Pengguna</button>
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:0.75rem;padding-top:1rem;border-top:1px solid var(--border-dim);">
+                <a href="{{ route('settings.users.index') }}" class="btn btn-secondary">Batal</a>
+                <button type="submit" class="btn btn-primary">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Simpan Pengguna
+                </button>
             </div>
         </form>
     </div>
