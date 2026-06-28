@@ -633,6 +633,7 @@ class AttendanceApiController extends Controller
             $file = $request->file('photo');
             $base64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
             $user->update(['photo' => $base64]);
+            $user->refresh();
 
             return response()->json([
                 'success' => true,

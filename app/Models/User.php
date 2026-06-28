@@ -99,7 +99,8 @@ class User extends Authenticatable
     {
         if ($this->photo) {
             $baseUrl = request() ? request()->getSchemeAndHttpHost() : config('app.url');
-            return $baseUrl . '/api/photo/' . $this->id;
+            $version = $this->updated_at ? $this->updated_at->timestamp : time();
+            return $baseUrl . '/api/photo/' . $this->id . '?v=' . $version;
         }
         return null;
     }
