@@ -109,6 +109,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/gps', [ReportController::class, 'gps'])->name('gps');
     });
 
+    // ─── Payroll ─────────────────────────────────────────────────────────────
+    Route::middleware(['role:super_admin|hrd|manager'])->prefix('payroll')->name('payroll.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\PayrollController::class, 'index'])->name('index');
+        Route::get('/{id}/edit', [\App\Http\Controllers\PayrollController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\PayrollController::class, 'update'])->name('update');
+    });
+
     // ─── Settings ────────────────────────────────────────────────────────────
     Route::middleware(['role:super_admin'])->prefix('settings')->name('settings.')->group(function () {
         Route::get('/company', [SettingController::class, 'company'])->name('company');

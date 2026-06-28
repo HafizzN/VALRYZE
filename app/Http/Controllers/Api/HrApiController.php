@@ -179,26 +179,31 @@ class HrApiController extends Controller
         $totalDeductions = 0;
 
         foreach ($employees as $u) {
-            // Generate realistic deterministic salary based on position and division
-            $posName = strtolower($u->position->name ?? '');
-            $basicSalary = 6500000; // default basic salary Rp 6.5M
+            $basicSalary = $u->basic_salary;
+            $hasCustom = !is_null($basicSalary);
 
-            if (str_contains($posName, 'director') || str_contains($posName, 'direktur')) {
-                $basicSalary = 35000000;
-            } elseif (str_contains($posName, 'manager') || str_contains($posName, 'lead')) {
-                $basicSalary = 22000000;
-            } elseif (str_contains($posName, 'senior')) {
-                $basicSalary = 15000000;
-            } elseif (str_contains($posName, 'engineer') || str_contains($posName, 'developer') || str_contains($posName, 'analyst')) {
-                $basicSalary = 11000000;
-            } elseif (str_contains($posName, 'hr') || str_contains($posName, 'recruiter')) {
-                $basicSalary = 8000000;
+            if (!$hasCustom) {
+                // Generate realistic deterministic salary based on position and division
+                $posName = strtolower($u->position->name ?? '');
+                $basicSalary = 6500000; // default basic salary Rp 6.5M
+
+                if (str_contains($posName, 'director') || str_contains($posName, 'direktur')) {
+                    $basicSalary = 35000000;
+                } elseif (str_contains($posName, 'manager') || str_contains($posName, 'lead')) {
+                    $basicSalary = 22000000;
+                } elseif (str_contains($posName, 'senior')) {
+                    $basicSalary = 15000000;
+                } elseif (str_contains($posName, 'engineer') || str_contains($posName, 'developer') || str_contains($posName, 'analyst')) {
+                    $basicSalary = 11000000;
+                } elseif (str_contains($posName, 'hr') || str_contains($posName, 'recruiter')) {
+                    $basicSalary = 8000000;
+                }
             }
 
             // Calculations
-            $allowance = (int) ($basicSalary * 0.15); // 15% allowance
-            $bpjsDeduction = (int) ($basicSalary * 0.03); // 3% BPJS
-            $taxDeduction = (int) ($basicSalary * 0.05); // 5% PPh21
+            $allowance = $hasCustom ? ($u->allowance ?? 0) : (int) ($basicSalary * 0.15); // 15% allowance
+            $bpjsDeduction = $hasCustom ? ($u->bpjs_deduction ?? 0) : (int) ($basicSalary * 0.03); // 3% BPJS
+            $taxDeduction = $hasCustom ? ($u->tax_deduction ?? 0) : (int) ($basicSalary * 0.05); // 5% PPh21
             $deductions = $bpjsDeduction + $taxDeduction;
             $netSalary = $basicSalary + $allowance - $deductions;
 

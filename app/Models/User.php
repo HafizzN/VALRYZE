@@ -21,6 +21,7 @@ class User extends Authenticatable
         'division_id', 'position_id', 'shift_id',
         'join_date', 'resign_date', 'employment_type', 'status',
         'annual_leave_quota', 'annual_leave_used', 'api_token', 'fcm_token',
+        'basic_salary', 'allowance', 'bpjs_deduction', 'tax_deduction',
     ];
 
     protected $hidden = ['password', 'remember_token', 'api_token'];
