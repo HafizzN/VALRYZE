@@ -52,9 +52,12 @@ class FcmService
                         'title' => $title,
                         'body' => $body,
                     ],
-                    'data' => array_map('strval', $data),
                 ]
             ];
+
+            if (!empty($data)) {
+                $payload['message']['data'] = array_map('strval', $data);
+            }
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $accessToken,
