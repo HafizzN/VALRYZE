@@ -16,6 +16,13 @@ class TestPushNotification extends Command
     protected $signature = 'test:push';
 
     /**
+     * The console command aliases.
+     *
+     * @var array
+     */
+    protected $aliases = ['push'];
+
+    /**
      * The console command description.
      *
      * @var string
